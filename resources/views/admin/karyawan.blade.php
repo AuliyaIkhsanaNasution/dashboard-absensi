@@ -6,8 +6,16 @@
     <title>Data Karyawan - PT. Souci Indoprima</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        * { scrollbar-width: thin; scrollbar-color: #888 #f1f1f1; }
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
-<body class="bg-gray-100" x-data="{ openAdd: false, openEdit: false, selectedKaryawan: {} }">
+<body class="bg-gray-100" x-data="karyawanApp()">
 
     <div class="flex h-screen overflow-hidden">
         
@@ -22,6 +30,16 @@
                 </div>
             </header>
 
+            @if($errors->any())
+            <div class="mx-4 mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <ul class="list-disc list-inside">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             <div class="p-4">
                 
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -29,7 +47,12 @@
                         
                         <div class="flex-1 max-w-md">
                             <div class="relative">
-                                <input type="text" placeholder="Cari nama, NIP..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input 
+                                    type="text" 
+                                    x-model="searchQuery"
+                                    @input="filterData"
+                                    placeholder="Cari Nama, Unit Kerja, Jabatan..." 
+                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                                 <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
@@ -37,12 +60,22 @@
                         </div>
 
                         <div class="flex gap-3">
-                            <select class="px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                            <select 
+                                x-model="filterJabatan"
+                                @change="filterData"
+                                class="px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                                 <option value="">Semua Jabatan</option>
+                                <template x-for="jabatan in uniqueJabatan" :key="jabatan">
+                                    <option :value="jabatan" x-text="jabatan"></option>
+                                </template>
                             </select>
                             
-                            <button @click="openAdd = true" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            <button 
+                                @click="openAdd = true" 
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
                                 Tambah Karyawan
                             </button>
                         </div>
@@ -54,48 +87,83 @@
                         <table class="w-full">
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">NIP</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Foto</th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Lengkap</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Unit Kerja</th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Jabatan</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Penempatan</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nomor WA</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
                                     <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
-                                @forelse($data as $k)
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4 text-sm text-gray-800 font-medium">{{ $k->nip }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $k->nama }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $k->jabatan }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $k->penempatan }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-800">{{ $k->no_wa }}</td>
-                                    <td class="px-6 py-4">
-                                        <span class="px-3 py-1 rounded-full text-xs font-medium {{ $k->status == 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                            {{ $k->status }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button @click="selectedKaryawan = {{ json_encode($k) }}; openEdit = true" class="text-yellow-500 hover:bg-yellow-50 p-2 rounded-lg transition">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                            </button>
-                                            
-                                            <form action="{{ route('admin.karyawan.destroy', $k->id) }}" method="POST" onsubmit="return confirm('Yakin hapus data ini?')">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <template x-for="k in filteredData" :key="k.id">
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="px-6 py-4">
+                                            <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                                                <template x-if="k.foto">
+                                                    <img :src="'/storage/' + k.foto" :alt="k.nama" class="w-full h-full object-cover">
+                                                </template>
+                                                <template x-if="!k.foto">
+                                                    <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </template>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-800 font-medium" x-text="k.nama"></td>
+                                        <td class="px-6 py-4 text-sm text-gray-800" x-text="k.perusahaan ? k.perusahaan.nama_pt : '-'"></td>
+                                        <td class="px-6 py-4 text-sm text-gray-800" x-text="k.jabatan"></td>
+                                        <td class="px-6 py-4 text-center">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <button 
+                                                    @click="selectedKaryawan = k; openDetail = true" 
+                                                    class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition" 
+                                                    title="Lihat Detail">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
                                                 </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="px-6 py-10 text-center text-gray-500">Belum ada data karyawan.</td>
-                                </tr>
-                                @endforelse
+
+                                                <button 
+                                                    @click="selectedKaryawan = k; openEdit = true" 
+                                                    class="text-yellow-500 hover:bg-yellow-50 p-2 rounded-lg transition" 
+                                                    title="Edit Data">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
+                                                </button>
+                                                
+                                                <form :id="'delete-form-' + k.id" :action="'/admin/karyawan/' + k.id" method="POST">
+                                                    @csrf 
+                                                    @method('DELETE')
+                                                    <button 
+                                                        type="button" 
+                                                        @click="handleDelete(k.id)" 
+                                                        class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition"
+                                                        title="Hapus Data">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                                
+                                <template x-if="filteredData.length === 0">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                                            <div class="flex flex-col items-center justify-center">
+                                                <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                                </svg>
+                                                <p class="text-lg font-medium">Tidak ada data ditemukan</p>
+                                                <p class="text-sm text-gray-400 mt-1">Coba ubah kata kunci pencarian Anda</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
                             </tbody>
                         </table>
                     </div>
@@ -104,73 +172,289 @@
         </main>
     </div>
 
-    <div x-show="openAdd" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
-    <div class="flex items-center justify-center min-h-screen px-4">
-        <div class="fixed inset-0 bg-black opacity-50" @click="openAdd = false"></div>
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 z-50">
-            <h3 class="text-xl font-bold mb-4 text-gray-800">Tambah Karyawan Baru</h3>
-            
-            <form action="{{ route('admin.karyawan.store') }}" method="POST">
-                @csrf
+    {{-- Modal Detail Karyawan --}}
+    <div x-show="openDetail" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" @click="openDetail = false"></div>
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 z-50 relative max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">Detail Karyawan</h3>
+                    <button @click="openDetail = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
                 <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Induk Pegawai (NIP)</label>
-                        <input type="text" name="nip" placeholder="Contoh: NIP001" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    <div class="flex justify-center mb-6">
+                        <div class="w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center border-4 border-blue-100">
+                            <template x-if="selectedKaryawan.foto">
+                                <img :src="'/storage/' + selectedKaryawan.foto" :alt="selectedKaryawan.nama" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!selectedKaryawan.foto">
+                                <svg class="w-20 h-20 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                </svg>
+                            </template>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                        <input type="text" name="nama_lengkap" placeholder="Masukkan nama sesuai KTP" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <span class="text-sm font-medium text-gray-600">NIP</span>
+                            <span class="text-sm font-semibold text-gray-800" x-text="selectedKaryawan.nip"></span>
+                        </div>
+                        
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <span class="text-sm font-medium text-gray-600">Nama Lengkap</span>
+                            <span class="text-sm font-semibold text-gray-800" x-text="selectedKaryawan.nama"></span>
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
-                        <input type="text" name="jabatan" placeholder="Contoh: Manager, Staff, dll" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                    </div>
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <span class="text-sm font-medium text-gray-600">Unit Kerja</span>
+                            <span class="text-sm font-semibold text-gray-800" x-text="selectedKaryawan.perusahaan ? selectedKaryawan.perusahaan.nama_pt : '-'"></span>
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Penempatan Kerja</label>
-                        <input type="text" name="penempatan" placeholder="Contoh: Kantor Pusat, Gudang A" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                    </div>
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <span class="text-sm font-medium text-gray-600">Jabatan</span>
+                            <span class="text-sm font-semibold text-gray-800" x-text="selectedKaryawan.jabatan"></span>
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp Aktif</label>
-                        <input type="text" name="nomor_wa" placeholder="Contoh: 0812xxxxxx" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <span class="text-sm font-medium text-gray-600">Nomor WhatsApp</span>
+                            <span class="text-sm font-semibold text-gray-800" x-text="selectedKaryawan.no_wa"></span>
+                        </div>
+                        
+                        <div class="flex justify-between py-2">
+                            <span class="text-sm font-medium text-gray-600">Status</span>
+                            <span class="px-3 py-1 rounded-full text-xs font-medium" 
+                                  :class="selectedKaryawan.status == 'Aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                  x-text="selectedKaryawan.status"></span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" @click="openAdd = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Batal</button>
-                    <button type="submit" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition">Simpan Data</button>
+                <div class="mt-6 flex justify-end">
+                    <button @click="openDetail = false" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">Tutup</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
 
-    <div x-show="openEdit" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+    {{-- Modal Tambah Karyawan --}}
+    <div x-show="openAdd" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         x-cloak>
         <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="fixed inset-0 bg-black opacity-50"></div>
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 z-50">
-                <h3 class="text-lg font-bold mb-4">Edit Data Karyawan</h3>
-                <form :action="'/admin/karyawan/' + selectedKaryawan.id" method="POST">
-                    @csrf @method('PUT')
+            <div class="fixed inset-0 bg-black opacity-50" @click="openAdd = false"></div>
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 z-50 relative max-h-[90vh] overflow-y-auto">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Tambah Karyawan Baru</h3>
+                
+                <form action="{{ route('admin.karyawan.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
                     <div class="space-y-4">
-                        <input type="text" name="nip" x-model="selectedKaryawan.nip" class="w-full border p-2 rounded">
-                        <input type="text" name="nama_lengkap" x-model="selectedKaryawan.nama_lengkap" class="w-full border p-2 rounded">
-                        <input type="text" name="jabatan" x-model="selectedKaryawan.jabatan" class="w-full border p-2 rounded">
-                        <input type="text" name="penempatan" x-model="selectedKaryawan.penempatan" class="w-full border p-2 rounded">
-                        <input type="text" name="nomor_wa" x-model="selectedKaryawan.nomor_wa" class="w-full border p-2 rounded">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Foto Karyawan</label>
+                            <input type="file" name="foto" accept="image/*" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG (Max: 5MB)</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Induk Pegawai (NIP)</label>
+                            <input type="text" name="nip" placeholder="Contoh: NIP001" value="{{ old('nip') }}" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                            <input type="text" name="nama_lengkap" placeholder="Masukkan nama sesuai KTP" value="{{ old('nama_lengkap') }}" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Unit Kerja <span class="text-red-500">*</span></label>
+                            <select name="perusahaan_id" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                                <option value="">-- Pilih Perusahaan --</option>
+                                @foreach($perusahaans as $p)
+                                    <option value="{{ $p->id }}" {{ old('perusahaan_id') == $p->id ? 'selected' : '' }}>
+                                        {{ $p->nama_pt }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
+                            <input type="text" name="jabatan" placeholder="Contoh: Manager, Staff, dll" value="{{ old('jabatan') }}" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        </div>
+
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp Aktif</label>
+                            <input type="text" name="nomor_wa" placeholder="Contoh: 0812xxxxxx" value="{{ old('nomor_wa') }}" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        </div>
                     </div>
+
                     <div class="mt-6 flex justify-end gap-3">
-                        <button type="button" @click="openEdit = false" class="px-4 py-2 text-gray-600">Batal</button>
-                        <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded">Update</button>
+                        <button type="button" @click="openAdd = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Batal</button>
+                        <button type="submit" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition">Simpan Data</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <style> [x-cloak] { display: none !important; } </style>
+    {{-- Modal Edit Karyawan --}}
+    <div x-show="openEdit" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" @click="openEdit = false"></div>
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 z-50 relative max-h-[90vh] overflow-y-auto">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Edit Data Karyawan</h3>
+                
+                <form :action="'/admin/karyawan/' + selectedKaryawan.id" method="POST" enctype="multipart/form-data">
+                    @csrf @method('PUT')
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Foto Karyawan</label>
+                            <input type="file" name="foto" accept="image/*" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none">
+                            <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengubah foto</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">NIP</label>
+                            <input type="text" name="nip" x-model="selectedKaryawan.nip" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                            <input type="text" name="nama_lengkap" x-model="selectedKaryawan.nama" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1"> Unit Kerja <span class="text-red-500">*</span></label>
+                            <select name="perusahaan_id" x-model="selectedKaryawan.perusahaan_id" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" required>
+                                <option value="">-- Pilih Perusahaan --</option>
+                                <template x-for="p in perusahaans" :key="p.id">
+                                    <option :value="p.id" x-text="p.nama_pt"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jabatan</label>
+                            <input type="text" name="jabatan" x-model="selectedKaryawan.jabatan" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp</label>
+                            <input type="text" name="nomor_wa" x-model="selectedKaryawan.no_wa" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" @click="openEdit = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Batal</button>
+                        <button type="submit" class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md transition">Update Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function karyawanApp() {
+            return {
+                openAdd: false,
+                openEdit: false,
+                openDetail: false,
+                selectedKaryawan: {},
+                searchQuery: '',
+                filterJabatan: '',
+                allData: @json($data),
+                filteredData: @json($data),
+                perusahaans: @json($perusahaans),
+
+                init() {
+                    this.filterData();
+                },
+
+                get uniqueJabatan() {
+                    return [...new Set(this.allData.map(k => k.jabatan))].sort();
+                },
+
+                filterData() {
+                    let result = this.allData;
+
+                    if (this.searchQuery.trim() !== '') {
+                        const query = this.searchQuery.toLowerCase();
+                        result = result.filter(k => {
+                            return (
+                                k.nama.toLowerCase().includes(query) ||
+                                k.jabatan.toLowerCase().includes(query) ||
+                                (k.nip && k.nip.toLowerCase().includes(query)) ||
+                                (k.perusahaan && k.perusahaan.nama_pt.toLowerCase().includes(query))
+                            );
+                        });
+                    }
+
+                    if (this.filterJabatan !== '') {
+                        result = result.filter(k => k.jabatan === this.filterJabatan);
+                    }
+
+                    this.filteredData = result;
+                },
+
+                handleDelete(id) {
+                    Swal.fire({
+                        title: 'Hapus data ini?',
+                        text: "Data karyawan akan dihapus secara permanen!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            document.getElementById('delete-form-' + id).submit();
+                        }
+                    });
+                }
+            }
+        }
+
+        @if(session('success'))
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: "{{ session('success') }}"
+            });
+        @endif
+    </script>
 </body>
 </html>

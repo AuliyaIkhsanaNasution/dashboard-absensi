@@ -1,3 +1,4 @@
+<script src="//unpkg.com/alpinejs" defer></script>
 <!DOCTYPE html>
 <html lang="id">
 <head>
