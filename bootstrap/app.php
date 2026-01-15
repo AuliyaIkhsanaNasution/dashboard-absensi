@@ -14,15 +14,24 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->statefulApi();
+
+        // Middleware API untuk Sanctum (TOKEN BASED)
+        $middleware->api([
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Handle unauthenticated untuk API - return JSON bukan redirect
+
+        // Response JSON untuk API jika belum login
         $exceptions->render(function (AuthenticationException $e, Request $request) {
-            if ($request->is('api/*') || $request->expectsJson()) {
+            if ($request->is('api/*')) {
                 return response()->json([
                     'message' => 'Unauthenticated.'
                 ], 401);
             }
         });
-    })->create();
+
+    })
+    ->create();

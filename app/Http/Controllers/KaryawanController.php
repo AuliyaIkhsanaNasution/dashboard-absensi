@@ -30,6 +30,9 @@ class KaryawanController extends Controller
             'perusahaan_id' => 'required|exists:perusahaans,id',
             'jabatan' => 'required|string|max:255',
             'nomor_wa' => 'required|string|max:20',
+            'alamat' => 'nullable|string',  
+            'tanggal_lahir' => 'nullable|date',  
+            'password' => 'required|string|min:6',
         ], [
             'foto.image' => 'File harus berupa gambar',    
             'foto.mimes' => 'Format foto harus: jpeg, png, jpg',
@@ -41,6 +44,10 @@ class KaryawanController extends Controller
             'perusahaan_id.exists' => 'Perusahaan tidak valid',
             'jabatan.required' => 'Jabatan wajib diisi',
             'nomor_wa.required' => 'Nomor WhatsApp wajib diisi',
+            'alamat.string' => 'Alamat harus berupa teks',  
+            'tanggal_lahir.date' => 'Format tanggal tidak valid', 
+            'password.required' => 'Password wajib diisi',
+            'password.min' => 'Password minimal 6 karakter',
         ]);
 
         // Handle upload foto
@@ -56,7 +63,10 @@ class KaryawanController extends Controller
             'nama' => $request->nama_lengkap,
             'perusahaan_id' => $request->perusahaan_id,
             'jabatan' => $request->jabatan,
+            'alamat' => $request->alamat,
+            'tanggal_lahir' => $request->tanggal_lahir,
             'no_wa' => $request->nomor_wa,
+            'password' => bcrypt($request->password),
             'status' => 'Aktif'
         ]);
 
@@ -77,6 +87,9 @@ class KaryawanController extends Controller
             'perusahaan_id' => 'required|exists:perusahaans,id',
             'jabatan' => 'required|string|max:255',
             'nomor_wa' => 'required|string|max:20',
+            'alamat' => 'nullable|string',
+            'tanggal_lahir' => 'nullable|date',
+            'password' => 'nullable|string|min:6',
         ], [
             'foto.image' => 'File harus berupa gambar',
             'foto.mimes' => 'Format foto harus: jpeg, png, jpg',
@@ -88,6 +101,9 @@ class KaryawanController extends Controller
             'perusahaan_id.exists' => 'Perusahaan tidak valid',
             'jabatan.required' => 'Jabatan wajib diisi',
             'nomor_wa.required' => 'Nomor WhatsApp wajib diisi',
+            'alamat.string' => 'Alamat harus berupa teks',
+            'tanggal_lahir.date' => 'Format tanggal tidak valid',  
+            'password.min' => 'Password minimal 6 karakter'
         ]);
 
         // Data yang akan diupdate
@@ -97,7 +113,13 @@ class KaryawanController extends Controller
             'perusahaan_id' => $request->perusahaan_id,
             'jabatan' => $request->jabatan,
             'no_wa' => $request->nomor_wa,
+            'alamat' => $request->alamat,  
+            'tanggal_lahir' => $request->tanggal_lahir,
         ];
+
+        if ($request->filled('password')) {  
+        $dataToUpdate['password'] = bcrypt($request->password);
+    }
 
         // Handle upload foto baru
         if ($request->hasFile('foto')) {

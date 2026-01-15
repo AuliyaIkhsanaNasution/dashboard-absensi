@@ -2,44 +2,44 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens;
 
-class Karyawan extends Model
+class Karyawan extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens;
 
-    // Nama tabel secara eksplisit (opsional tapi disarankan)
     protected $table = 'karyawans';
 
-    // Sesuaikan fillable dengan input yang Anda miliki di database
     protected $fillable = [
         'perusahaan_id',
         'foto',
-        'nip', 
-        'nama', 
-        'jabatan', 
-        'no_wa', 
-        'status'
+        'nip',
+        'nama',
+        'jabatan',
+        'alamat',
+        'tanggal_lahir',
+        'no_wa',
+        'status',
+        'password', 
     ];
 
-    /**
-     * Relasi: Satu Karyawan memiliki banyak data Absensi.
-     * Ini memungkinkan kita memanggil $karyawan->absensis
-     */
+    protected $hidden = [
+        'password', 
+    ];
+
+    // RELASI (TIDAK BERUBAH)
     public function absensis()
     {
         return $this->hasMany(Absensi::class, 'karyawan_id');
     }
 
-     public function perusahaan()
+    public function perusahaan()
     {
         return $this->belongsTo(Perusahaan::class, 'perusahaan_id');
     }
 
-    /**
-     * Helper: Menghitung total kehadiran bulan ini untuk statistik dashboard
-     */
     public function totalHadirBulanIni()
     {
         return $this->absensis()
@@ -48,4 +48,11 @@ class Karyawan extends Model
             ->whereYear('tanggal', date('Y'))
             ->count();
     }
+
+public function getFotoAttribute($value)
+{
+    return $value
+        ? asset('storage/' . $value)
+        : null;
+}
 }
