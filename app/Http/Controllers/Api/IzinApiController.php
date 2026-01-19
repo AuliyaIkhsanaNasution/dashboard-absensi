@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Izin;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class IzinApiController extends Controller
 {
@@ -17,7 +18,7 @@ class IzinApiController extends Controller
             'jenis_izin' => 'required|in:Izin sakit tanpa surat dokter,Izin sakit dengan surat dokter,Izin keperluan keluarga,Izin mengurus dokumen,Izin pulang cepat',
             'tanggal_izin' => 'required|date',
             'keterangan' => 'required|string',
-            'dokumen' => 'nullable|file|max:2048'
+            'dokumen' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048'
         ]);
 
         $user = auth('sanctum')->user(); // 🔥 FIX UTAMA
@@ -69,4 +70,24 @@ class IzinApiController extends Controller
 
         return response()->json($izin);
     }
+
+        public function jenisIzin()
+        {
+            // Ambil enum dari kolom jenis_izin
+            $type = DB::select("SHOW COLUMNS FROM izins WHERE Field = 'jenis_izin'")[0]->Type;
+
+            // Bersihkan enum menjadi array
+            preg_match('/^enum\((.*)\)$/', $type, $matches);
+            $enum = [];
+            if (isset($matches[1])) {
+                $enum = array_map(function ($value) {
+                    return trim($value, "'");
+                }, explode(',', $matches[1]));
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $enum
+            ]);
+        }
 }

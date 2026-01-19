@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // IZIN (KARYAWAN)
     Route::post('/izin', [IzinApiController::class, 'store']);
     Route::get('/izin/riwayat', [IzinApiController::class, 'riwayat']);
+    Route::get('/izin/jenis', [IzinApiController::class, 'jenisIzin']);
 
     // OPTIONAL: DATA USER LOGIN
     Route::get('/me', function (Request $request) {
