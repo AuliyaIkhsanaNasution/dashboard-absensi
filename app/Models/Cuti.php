@@ -19,7 +19,8 @@ class Cuti extends Model
         'tanggal_selesai',      
         'tanggal_masuk_kerja',  
         'keterangan',
-        'dokumen'
+        'dokumen',
+        'status'
     ];
 
     protected $casts = [

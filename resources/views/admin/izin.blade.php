@@ -166,7 +166,7 @@
                                     <!-- Photo -->
                                     <div class="h-12 w-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
                                         <template x-if="izin.karyawan.foto">
-                                            <img :src="'/storage/' + izin.karyawan.foto" :alt="izin.karyawan.nama" class="w-full h-full object-cover">
+                                            <img :src="izin.karyawan.foto" :alt="izin.karyawan.nama" class="w-full h-full object-cover">
                                         </template>
                                         <template x-if="!izin.karyawan.foto">
                                             <span class="text-blue-600 font-bold text-sm" x-text="izin.karyawan.nama.charAt(0)"></span>

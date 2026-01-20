@@ -10,7 +10,7 @@ class Lembur extends Model
     use HasFactory;
 
     protected $fillable = [
-        'karyawan_id', 'tgl_lembur', 'jam_mulai', 'jam_selesai', 'kategori', 'keterangan', 'dokumen'
+        'karyawan_id', 'tgl_lembur', 'jam_mulai', 'jam_selesai', 'kategori', 'keterangan', 'dokumen','status'
     ];
 
     public function karyawan()

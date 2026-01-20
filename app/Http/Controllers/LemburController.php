@@ -17,4 +17,19 @@ class LemburController extends Controller
 
     return view('admin.lembur', compact('allLembur', 'karyawans'));
 }
+
+public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:pending,approved,rejected'
+    ]);
+
+    $lembur = Lembur::findOrFail($id);
+
+    $lembur->update([
+        'status' => $request->status
+    ]);
+
+    return back()->with('success', 'Status lembur berhasil diperbarui.');
+}
 }

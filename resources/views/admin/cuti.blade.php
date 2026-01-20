@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Cuti - PT. Souci Indoprima</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="bg-gray-100" x-data="cutiApp()">
+<body class="bg-gray-100" 
+      x-data="{ sidebarOpen: window.innerWidth >= 768, ...cutiApp() }"
+      @resize.window="if(window.innerWidth >= 768) sidebarOpen = true">
 
     <div class="flex h-screen overflow-hidden">
         
@@ -15,38 +17,53 @@
 
         <main class="flex-1 overflow-y-auto">
             
+            <!-- Header with Hamburger -->
             <header class="bg-white shadow-sm">
-                <div class="px-8 py-4">
-                    <h1 class="text-2xl font-bold text-gray-800">Daftar Cuti Karyawan</h1>
-                    <p class="text-sm text-gray-600 mt-1">Data pengajuan cuti berdasarkan urutan terbaru</p>
+                <div class="px-4 sm:px-6 lg:px-8 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Daftar Cuti Karyawan</h1>
+                            <p class="text-sm text-gray-600 mt-1 hidden sm:block">Data pengajuan cuti berdasarkan urutan terbaru</p>
+                        </div>
+                        
+                        <!-- Hamburger Button -->
+                        <button @click="sidebarOpen = !sidebarOpen" 
+                                class="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </header>
 
-            <div class="p-4">
+            <div class="p-4 sm:p-6 lg:p-8">
                 
                 {{-- Filter dan Pencarian --}}
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+                    <div class="flex flex-col gap-4">
                         
-                        <div class="flex-1 max-w-md">
+                        <!-- Search Box -->
+                        <div class="w-full">
                             <div class="relative">
                                 <input 
                                     type="text" 
                                     x-model="searchQuery"
                                     @input="filterCuti"
                                     placeholder="Cari nama karyawan..." 
-                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                                 <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
                             </div>
                         </div>
 
+                        <!-- Filter -->
                         <div class="flex gap-3">
                             <select 
                                 x-model="filterJenisCuti"
                                 @change="filterCuti"
-                                class="px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                                 <option value="">Semua Jenis Cuti</option>
                                 <option value="Cuti Tahunan">Cuti Tahunan</option>
                                 <option value="Cuti Melahirkan">Cuti Melahirkan</option>
@@ -59,15 +76,13 @@
                 </div>
 
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="overflow-x-auto">
+                    <!-- Desktop Table -->
+                    <div class="hidden lg:block overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Karyawan</th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Jenis Cuti</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Tanggal Mulai</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Tanggal Selesai</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Masuk Kerja</th>
                                     <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
                                 </tr>
                             </thead>
@@ -76,9 +91,9 @@
                                     <tr class="hover:bg-gray-50 transition">
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-3">
-                                                <div class="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                                                <div class="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
                                                     <template x-if="cuti.karyawan.foto">
-                                                        <img :src="'/storage/' + cuti.karyawan.foto" :alt="cuti.karyawan.nama" class="w-full h-full object-cover">
+                                                        <img :src="cuti.karyawan.foto" :alt="cuti.karyawan.nama" class="w-full h-full object-cover">
                                                     </template>
                                                     <template x-if="!cuti.karyawan.foto">
                                                         <span class="text-blue-600 font-bold text-sm" x-text="cuti.karyawan.nama.charAt(0)"></span>
@@ -94,12 +109,8 @@
                                             <span class="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800" 
                                                 x-text="cuti.jenis_cuti"></span>
                                         </td>
-                                       <td class="px-6 py-4 text-sm text-gray-800" x-text="formatTanggal(cuti.tanggal_mulai)"></td>
-                                        <td class="px-6 py-4 text-sm text-gray-800" x-text="formatTanggal(cuti.tanggal_selesai)"></td>
-                                        <td class="px-6 py-4 text-sm text-gray-800" x-text="formatTanggal(cuti.tanggal_masuk_kerja)"></td>
                                         <td class="px-6 py-4 text-center">
                                             <div class="flex items-center justify-center gap-1">
-                                                {{-- Tombol View --}}
                                                 <button 
                                                     @click="selectedCuti = cuti; openView = true" 
                                                     class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition" 
@@ -110,7 +121,6 @@
                                                     </svg>
                                                 </button>
 
-                                                {{-- Form Delete --}}
                                                 <form :id="'delete-form-' + cuti.id" :action="'/admin/cuti/' + cuti.id" method="POST">
                                                     @csrf 
                                                     @method('DELETE')
@@ -145,6 +155,80 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Mobile Card View -->
+                    <div class="lg:hidden divide-y divide-gray-200">
+                        <template x-for="cuti in filteredCuti" :key="cuti.id">
+                            <div class="p-4 hover:bg-gray-50 transition">
+                                <div class="flex items-start gap-3 mb-3">
+                                    <!-- Photo -->
+                                    <div class="h-12 w-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                        <template x-if="cuti.karyawan.foto">
+                                            <img :src="cuti.karyawan.foto" :alt="cuti.karyawan.nama" class="w-full h-full object-cover">
+                                        </template>
+                                        <template x-if="!cuti.karyawan.foto">
+                                            <span class="text-blue-600 font-bold text-sm" x-text="cuti.karyawan.nama.charAt(0)"></span>
+                                        </template>
+                                    </div>
+                                    
+                                    <!-- Info -->
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold text-gray-800 truncate" x-text="cuti.karyawan.nama"></p>
+                                        <p class="text-xs text-gray-500" x-text="cuti.karyawan.jabatan"></p>
+                                        <div class="mt-2">
+                                            <span class="inline-block px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800" 
+                                                x-text="cuti.jenis_cuti"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Detail Info -->
+                                <div class="mb-3 bg-gray-50 rounded-lg p-3 space-y-2 text-xs">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500 font-medium">Tanggal Mulai:</span>
+                                        <span class="text-gray-800 font-semibold" x-text="formatTanggal(cuti.tanggal_mulai)"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500 font-medium">Tanggal Selesai:</span>
+                                        <span class="text-gray-800 font-semibold" x-text="formatTanggal(cuti.tanggal_selesai)"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-500 font-medium">Masuk Kerja:</span>
+                                        <span class="text-gray-800 font-semibold" x-text="formatTanggal(cuti.tanggal_masuk_kerja)"></span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="flex gap-2">
+                                    <button 
+                                        @click="selectedCuti = cuti; openView = true"
+                                        class="flex-1 bg-blue-50 text-blue-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
+                                        Lihat Detail
+                                    </button>
+                                    <form :id="'delete-form-' + cuti.id" :action="'/admin/cuti/' + cuti.id" method="POST" class="flex-1">
+                                        @csrf 
+                                        @method('DELETE')
+                                        <button 
+                                            type="button" 
+                                            @click="handleDelete(cuti.id)"
+                                            class="w-full bg-red-50 text-red-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-100 transition">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <template x-if="filteredCuti.length === 0">
+                            <div class="p-10 text-center text-gray-500">
+                                <svg class="w-16 h-16 text-gray-300 mb-3 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p class="text-base font-medium">Tidak ada data cuti</p>
+                                <p class="text-sm text-gray-400 mt-1">Coba ubah filter atau kata kunci</p>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
         </main>
@@ -159,59 +243,124 @@
          x-cloak>
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="fixed inset-0 bg-black/60" @click="openView = false"></div>
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 z-50 relative">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Detail Cuti</h3>
-                        <p class="text-sm text-gray-500 mt-1" x-text="'Karyawan: ' + selectedCuti.karyawan?.nama"></p>
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl p-4 sm:p-6 z-50 relative max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Detail Cuti</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1 truncate" x-text="'Karyawan: ' + selectedCuti.karyawan?.nama"></p>
                     </div>
-                    <button @click="openView = false" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                    <button @click="openView = false" class="text-gray-400 hover:text-gray-600 text-2xl ml-2 flex-shrink-0">&times;</button>
                 </div>
 
-                <div class="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="mb-4 p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                         <div>
-                            <p class="text-gray-500 font-medium mb-1">Jenis Cuti:</p>
-                            <p class="text-gray-800 font-semibold" x-text="selectedCuti.jenis_cuti"></p>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Jenis Cuti:</p>
+                            <p class="text-gray-800 font-semibold text-sm" x-text="selectedCuti.jenis_cuti"></p>
                         </div>
                         <div>
-                            <p class="text-gray-500 font-medium mb-1">Tanggal Mulai:</p>
-                            <p class="text-gray-800 font-semibold" x-text="formatTanggal(selectedCuti.tanggal_mulai)"></p>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Mulai:</p>
+                            <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_mulai)"></p>
                         </div>
                         <div>
-                            <p class="text-gray-500 font-medium mb-1">Tanggal Selesai:</p>
-                            <p class="text-gray-800 font-semibold" x-text="formatTanggal(selectedCuti.tanggal_selesai)"></p>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Selesai:</p>
+                            <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_selesai)"></p>
                         </div>
                         <div>
-                            <p class="text-gray-500 font-medium mb-1">Tanggal Masuk Kerja:</p>
-                            <p class="text-gray-800 font-semibold" x-text="formatTanggal(selectedCuti.tanggal_masuk_kerja)"></p>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Masuk Kerja:</p>
+                            <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_masuk_kerja)"></p>
                         </div>
                     </div>
                     <div class="mt-3 pt-3 border-t border-purple-200">
-                        <p class="text-gray-500 font-medium mb-2">Keterangan:</p>
-                        <p class="text-gray-700" x-text="selectedCuti.keterangan || 'Tidak ada keterangan.'"></p>
+                        <p class="text-gray-500 font-medium mb-2 text-xs sm:text-sm">Keterangan:</p>
+                        <p class="text-gray-700 text-xs sm:text-sm" x-text="selectedCuti.keterangan || 'Tidak ada keterangan.'"></p>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-purple-200">
+                        <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Status:</p>
+                        <span
+                            class="px-3 py-1 rounded-full text-xs font-semibold capitalize"
+                            :class="{
+                                'bg-yellow-100 text-yellow-800': selectedCuti.status === 'pending',
+                                'bg-green-100 text-green-800': selectedCuti.status === 'approved',
+                                'bg-red-100 text-red-800': selectedCuti.status === 'rejected'
+                            }"
+                            x-text="selectedCuti.status">
+                        </span>
                     </div>
                 </div>
                 
                 <div>
-                    <p class="text-sm font-semibold text-gray-700 mb-2">Dokumen Lampiran:</p>
-                    <div class="bg-gray-100 rounded-xl overflow-hidden min-h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300">
-                        <template x-if="selectedCuti.dokumen">
-                            <img :src="'/storage/' + selectedCuti.dokumen" class="max-w-full max-h-[70vh] object-contain">
+                    <p class="text-xs sm:text-sm font-semibold text-gray-700 mb-2">Dokumen Lampiran:</p>
+                    <div class="bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden min-h-[200px] sm:min-h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300">
+                        <template x-if="selectedCuti && selectedCuti.dokumen">
+                            <img :src="'/storage/' + selectedCuti.dokumen" class="max-w-full max-h-[60vh] sm:max-h-[70vh] object-contain">
                         </template>
-                        <template x-if="!selectedCuti.dokumen">
-                            <div class="text-center p-8">
-                                <svg class="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <template x-if="!selectedCuti || !selectedCuti.dokumen">
+                            <div class="text-center p-6 sm:p-8">
+                                <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                <p class="text-gray-500">Tidak ada dokumen lampiran.</p>
+                                <p class="text-gray-500 text-xs sm:text-sm">Tidak ada dokumen lampiran.</p>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <div class="mt-6">
-                    <button @click="openView = false" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 rounded-lg transition">Tutup</button>
+                <div class="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+                    {{-- Pending --}}
+                    <form
+                        :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'"
+                        method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="pending">
+                        <button
+                            type="submit"
+                            class="w-full py-2 rounded-lg font-bold transition text-xs sm:text-sm"
+                            :class="selectedCuti.status === 'pending'
+                                ? 'bg-yellow-400 text-white cursor-not-allowed'
+                                : 'bg-yellow-500 hover:bg-yellow-600 text-white'">
+                            Pending
+                        </button>
+                    </form>
+
+                    {{-- Approve --}}
+                    <form
+                        :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'"
+                        method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="approved">
+                        <button
+                            type="submit"
+                            class="w-full py-2 rounded-lg font-bold transition text-xs sm:text-sm"
+                            :class="selectedCuti.status === 'approved'
+                                ? 'bg-green-500 text-white cursor-not-allowed'
+                                : 'bg-green-600 hover:bg-green-700 text-white'">
+                            Approve
+                        </button>
+                    </form>
+
+                    {{-- Reject --}}
+                    <form
+                        :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'"
+                        method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="rejected">
+                        <button
+                            type="submit"
+                            class="w-full py-2 rounded-lg font-bold transition text-xs sm:text-sm"
+                            :class="selectedCuti.status === 'rejected'
+                                ? 'bg-red-500 text-white cursor-not-allowed'
+                                : 'bg-red-600 hover:bg-red-700 text-white'">
+                            Reject
+                        </button>
+                    </form>
+                </div>
+
+                <div class="mt-4 sm:mt-6">
+                    <button @click="openView = false" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 sm:py-3 rounded-lg transition text-sm sm:text-base">Tutup</button>
                 </div>
             </div>
         </div>

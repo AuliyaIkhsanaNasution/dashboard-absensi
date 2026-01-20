@@ -66,6 +66,23 @@ class CutiController extends Controller
         return redirect()->route('admin.cuti')->with('success', 'Data cuti berhasil diperbarui!');
     }
 
+public function updateStatus(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:pending,approved,rejected'
+    ]);
+
+    $cuti = Cuti::findOrFail($id);
+
+    $cuti->update([
+        'status' => $request->status
+    ]);
+
+    return back()->with('success', 'Status cuti berhasil diperbarui.');
+}
+
+
+
     public function destroy(Cuti $cuti)
     {
         if ($cuti->dokumen) {

@@ -107,6 +107,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::put('/cuti/{cuti}', [CutiController::class, 'update'])->name('cuti.update');
     Route::delete('/cuti/{cuti}', [CutiController::class, 'destroy'])->name('cuti.destroy');
 
+    Route::patch('/cuti/{id}/status', [CutiController::class, 'updateStatus'])
+    ->name('cuti.status');
+
     // ============================================
 // Kelola Lembur
 // ============================================
@@ -115,4 +118,7 @@ Route::post('/lembur', [LemburController::class, 'store'])->name('lembur.store')
 Route::put('/lembur/{lembur}', [LemburController::class, 'update'])->name('lembur.update');
 Route::delete('/lembur/{lembur}', [LemburController::class, 'destroy'])->name('lembur.destroy');
     
+Route::patch('/lembur/{id}/status', [LemburController::class, 'updateStatus'])
+    ->name('lembur.status');
+
 });
