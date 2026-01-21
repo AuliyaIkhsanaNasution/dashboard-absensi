@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\KaryawanAuthController;
 use App\Http\Controllers\Api\AbsensiController;
 use App\Http\Controllers\Api\KaryawanController;
 use App\Http\Controllers\Api\IzinApiController;
+use App\Http\Controllers\Api\CutiApiController;
+use App\Http\Controllers\Api\LemburApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +32,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/izin/riwayat', [IzinApiController::class, 'riwayat']);
     Route::get('/izin/jenis', [IzinApiController::class, 'jenisIzin']);
 
+    // Cuti (KARYAWAN)
+    Route::get('/cuti/riwayat', [CutiApiController::class, 'riwayat']);
+    Route::post('/cuti', [CutiApiController::class, 'store']);
+    Route::get('/cuti/jenis', [CutiApiController::class, 'jenisCuti']);
+
+    //Lembur (KARYAWAN)
+    Route::get('/lembur/riwayat', [LemburApiController::class, 'riwayat']);
+    Route::post('/lembur', [LemburApiController::class, 'store']);
+    Route::get('/lembur/kategori', [LemburApiController::class, 'kategori']);
+
     // OPTIONAL: DATA USER LOGIN
     Route::get('/me', function (Request $request) {
         return response()->json([
@@ -44,4 +56,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/karyawan/home', [KaryawanController::class, 'home']);
     Route::get('/karyawan/profile', [KaryawanController::class, 'profile']);
 
+    
 });

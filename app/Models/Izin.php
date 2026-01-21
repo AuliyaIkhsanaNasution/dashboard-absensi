@@ -21,6 +21,14 @@ class Izin extends Model
         'keterangan',
         'dokumen',
     ];
+    protected $appends = ['dokumen_url'];
+
+    public function getDokumenUrlAttribute()
+    {
+        return $this->dokumen
+        ? url('dokumen_izin/' . basename($this->dokumen))
+        : null;
+    }
 
     /**
      * Relasi ke Karyawan untuk mengambil nama

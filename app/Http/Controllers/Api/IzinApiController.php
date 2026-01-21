@@ -18,7 +18,7 @@ class IzinApiController extends Controller
             'jenis_izin' => 'required|in:Izin sakit tanpa surat dokter,Izin sakit dengan surat dokter,Izin keperluan keluarga,Izin mengurus dokumen,Izin pulang cepat',
             'tanggal_izin' => 'required|date',
             'keterangan' => 'required|string',
-            'dokumen' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048'
+            'dokumen' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120'
         ]);
 
         $user = auth('sanctum')->user(); // 🔥 FIX UTAMA
@@ -47,8 +47,14 @@ class IzinApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Izin berhasil diajukan',
-            'data' => $izin
+            'data' => [
+                'id' => $izin->id,
+                'dokumen' => $dokumen
+                    ? url('dokumen_izin/' . $dokumen)
+                    : null,
+            ]
         ], 201);
+
     }
 
     /**
@@ -67,6 +73,13 @@ class IzinApiController extends Controller
         $izin = Izin::where('karyawan_id', $user->id)
             ->orderBy('tanggal_izin', 'desc')
             ->get();
+        
+            $izin->transform(function ($item) {
+        $item->dokumen = $item->dokumen
+            ? url('dokumen_izin/' . $item->dokumen)
+            : null;
+        return $item;
+    });
 
         return response()->json($izin);
     }
