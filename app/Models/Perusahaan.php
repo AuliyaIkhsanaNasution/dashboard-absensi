@@ -27,6 +27,7 @@ class Perusahaan extends Model
         'logo',
         'latitude',
         'longitude',
+        'radius_absen',
     ];
 
     /**

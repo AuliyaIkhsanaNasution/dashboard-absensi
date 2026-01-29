@@ -59,7 +59,7 @@
                         </div>
 
                         <!-- Filter -->
-                        <div class="flex gap-3">
+                        <div class="flex flex-col sm:flex-row gap-3">
                             <select 
                                 x-model="filterJenisIzin"
                                 @change="filterIzin"
@@ -71,6 +71,21 @@
                                 <option value="Izin mengurus dokumen">Mengurus Dokumen</option>
                                 <option value="Izin pulang cepat">Pulang Cepat</option>
                             </select>
+
+                            <!-- Filter Tanggal -->
+                            <input 
+                                type="date" 
+                                x-model="filterTanggal"
+                                @change="filterIzin"
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                placeholder="Pilih Tanggal">
+
+                            <!-- Tombol Reset Filter -->
+                            <button 
+                                @click="resetFilter"
+                                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition text-sm font-medium whitespace-nowrap">
+                                Reset Filter
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -227,158 +242,158 @@
             </div>
         </main>
     </div>
-    {{-- Modal View Dokumen --}}
-<div 
-    x-show="openView"
-    x-cloak
-    x-data="{
-        isPdf(file) {
-            return file && file.toLowerCase().endsWith('.pdf')
-        },
-        isImage(file) {
-            return file && ['jpg','jpeg','png','webp'].some(ext => file.toLowerCase().endsWith(ext))
-        }
-    }"
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    class="fixed inset-0 z-50 overflow-y-auto"
->
-    <div class="flex items-center justify-center min-h-screen p-4">
-        
-        <!-- Overlay -->
-        <div class="fixed inset-0 bg-black/60" @click="openView = false"></div>
 
-        <!-- Modal -->
-        <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl p-4 sm:p-6 z-50 relative max-h-[90vh] overflow-y-auto">
+    {{-- Modal View Dokumen --}}   
+    <div 
+        x-show="openView"
+        x-cloak
+        x-data="{
+            isPdf(file) {
+                return file && file.toLowerCase().endsWith('.pdf')
+            },
+            isImage(file) {
+                return file && ['jpg','jpeg','png','webp'].some(ext => file.toLowerCase().endsWith(ext))
+            }
+        }"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        class="fixed inset-0 z-50 overflow-y-auto"
+    >
+        <div class="flex items-center justify-center min-h-screen p-4">
+            
+            <!-- Overlay -->
+            <div class="fixed inset-0 bg-black/60" @click="openView = false"></div>
 
-            <!-- Header -->
-            <div class="flex justify-between items-start mb-4">
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-lg sm:text-xl font-bold text-gray-800">
-                        Detail Perizinan
-                    </h3>
-                    <p class="text-xs sm:text-sm text-gray-500 mt-1 truncate"
-                       x-text="'Karyawan: ' + (selectedIzin.karyawan?.nama ?? '-')">
-                    </p>
-                </div>
-                <button 
-                    @click="openView = false"
-                    class="text-gray-400 hover:text-gray-600 text-2xl ml-2 flex-shrink-0">
-                    &times;
-                </button>
-            </div>
+            <!-- Modal -->
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl p-4 sm:p-6 z-50 relative max-h-[90vh] overflow-y-auto">
 
-            <!-- Informasi Izin -->
-            <div class="mb-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
-                    <div>
-                        <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">
-                            Jenis Izin:
-                        </p>
-                        <p class="text-gray-800 font-semibold text-sm"
-                           x-text="selectedIzin.jenis_izin">
+                <!-- Header -->
+                <div class="flex justify-between items-start mb-4">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">
+                            Detail Perizinan
+                        </h3>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1 truncate"
+                           x-text="'Karyawan: ' + (selectedIzin.karyawan?.nama ?? '-')">
                         </p>
                     </div>
-                    <div>
-                        <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">
-                            Tanggal Izin:
+                    <button 
+                        @click="openView = false"
+                        class="text-gray-400 hover:text-gray-600 text-2xl ml-2 flex-shrink-0">
+                        &times;
+                    </button>
+                </div>
+
+                <!-- Informasi Izin -->
+                <div class="mb-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">
+                                Jenis Izin:
+                            </p>
+                            <p class="text-gray-800 font-semibold text-sm"
+                               x-text="selectedIzin.jenis_izin">
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">
+                                Tanggal Izin:
+                            </p>
+                            <p class="text-gray-800 font-semibold text-sm"
+                               x-text="formatTanggal(selectedIzin.tanggal_izin)">
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-blue-200">
+                        <p class="text-gray-500 font-medium mb-2 text-xs sm:text-sm">
+                            Keterangan:
                         </p>
-                        <p class="text-gray-800 font-semibold text-sm"
-                           x-text="formatTanggal(selectedIzin.tanggal_izin)">
+                        <p class="text-gray-700 text-xs sm:text-sm"
+                           x-text="selectedIzin.keterangan || 'Tidak ada keterangan.'">
                         </p>
                     </div>
                 </div>
 
-                <div class="mt-3 pt-3 border-t border-blue-200">
-                    <p class="text-gray-500 font-medium mb-2 text-xs sm:text-sm">
-                        Keterangan:
+                <!-- Dokumen Lampiran -->
+                <div>
+                    <p class="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                        Dokumen Lampiran:
                     </p>
-                    <p class="text-gray-700 text-xs sm:text-sm"
-                       x-text="selectedIzin.keterangan || 'Tidak ada keterangan.'">
-                    </p>
+
+                    <div class="bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden min-h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300">
+
+                        <!-- PREVIEW PDF -->
+                        <template x-if="selectedIzin?.dokumen && isPdf(selectedIzin.dokumen)">
+                            <iframe
+                                :src="'/dokumen_izin/' + selectedIzin.dokumen"
+                                class="w-full h-[70vh]"
+                                frameborder="0">
+                            </iframe>
+                        </template>
+
+                        <!-- PREVIEW IMAGE -->
+                        <template x-if="selectedIzin?.dokumen && isImage(selectedIzin.dokumen)">
+                            <img
+                                :src="'/dokumen_izin/' + selectedIzin.dokumen"
+                                class="max-w-full max-h-[70vh] object-contain">
+                        </template>
+
+                        <!-- FILE TIDAK DIDUKUNG -->
+                        <template x-if="selectedIzin?.dokumen && !isPdf(selectedIzin.dokumen) && !isImage(selectedIzin.dokumen)">
+                            <div class="text-center p-6">
+                                <p class="text-gray-500 text-sm mb-2">
+                                    Format dokumen tidak didukung untuk pratinjau
+                                </p>
+                                
+                                    :href="'/dokumen_izin/' + selectedIzin.dokumen"
+                                    target="_blank"
+                                    class="text-blue-600 underline text-sm">
+                                    Download Dokumen
+                                </a>
+                            </div>
+                        </template>
+
+                        <!-- TIDAK ADA DOKUMEN -->
+                        <template x-if="!selectedIzin?.dokumen">
+                            <div class="text-center p-6 sm:p-8">
+                                <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-2"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p class="text-gray-500 text-xs sm:text-sm">
+                                    Karyawan tidak melampirkan dokumen bukti.
+                                </p>
+                            </div>
+                        </template>
+
+                    </div>
+
+                    <!-- Tombol Buka Dokumen -->
+                    <template x-if="selectedIzin?.dokumen">
+                        
+                            :href="'/dokumen_izin/' + selectedIzin.dokumen"
+                            target="_blank"
+                            class="block text-center text-blue-600 text-xs sm:text-sm underline mt-2">
+                            Buka / Download Dokumen
+                        </a>
+                    </template>
                 </div>
-            </div>
 
-            <!-- Dokumen Lampiran -->
-            <div>
-                <p class="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-                    Dokumen Lampiran:
-                </p>
-
-                <div class="bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden min-h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300">
-
-                    <!-- PREVIEW PDF -->
-                    <template x-if="selectedIzin?.dokumen && isPdf(selectedIzin.dokumen)">
-                        <iframe
-                            :src="'/dokumen_izin/' + selectedIzin.dokumen"
-                            class="w-full h-[70vh]"
-                            frameborder="0">
-                        </iframe>
-                    </template>
-
-                    <!-- PREVIEW IMAGE -->
-                    <template x-if="selectedIzin?.dokumen && isImage(selectedIzin.dokumen)">
-                        <img
-                            :src="'/dokumen_izin/' + selectedIzin.dokumen"
-                            class="max-w-full max-h-[70vh] object-contain">
-                    </template>
-
-                    <!-- FILE TIDAK DIDUKUNG -->
-                    <template x-if="selectedIzin?.dokumen && !isPdf(selectedIzin.dokumen) && !isImage(selectedIzin.dokumen)">
-                        <div class="text-center p-6">
-                            <p class="text-gray-500 text-sm mb-2">
-                                Format dokumen tidak didukung untuk pratinjau
-                            </p>
-                            <a
-                                :href="'/dokumen_izin/' + selectedIzin.dokumen"
-                                target="_blank"
-                                class="text-blue-600 underline text-sm">
-                                Download Dokumen
-                            </a>
-                        </div>
-                    </template>
-
-                    <!-- TIDAK ADA DOKUMEN -->
-                    <template x-if="!selectedIzin?.dokumen">
-                        <div class="text-center p-6 sm:p-8">
-                            <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-2"
-                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <p class="text-gray-500 text-xs sm:text-sm">
-                                Karyawan tidak melampirkan dokumen bukti.
-                            </p>
-                        </div>
-                    </template>
-
+                <!-- Footer -->
+                <div class="mt-4 sm:mt-6">
+                    <button
+                        @click="openView = false"
+                        class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 sm:py-3 rounded-lg transition text-sm sm:text-base">
+                        Tutup Pratinjau
+                    </button>
                 </div>
 
-                <!-- Tombol Buka Dokumen -->
-                <template x-if="selectedIzin?.dokumen">
-                    <a
-                        :href="'/dokumen_izin/' + selectedIzin.dokumen"
-                        target="_blank"
-                        class="block text-center text-blue-600 text-xs sm:text-sm underline mt-2">
-                        Buka / Download Dokumen
-                    </a>
-                </template>
             </div>
-
-            <!-- Footer -->
-            <div class="mt-4 sm:mt-6">
-                <button
-                    @click="openView = false"
-                    class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 sm:py-3 rounded-lg transition text-sm sm:text-base">
-                    Tutup Pratinjau
-                </button>
-            </div>
-
         </div>
     </div>
-</div>
-
 
     <style> 
         [x-cloak] { display: none !important; }
@@ -397,6 +412,7 @@
                 selectedIzin: {},
                 searchQuery: '',
                 filterJenisIzin: '',
+                filterTanggal: '',
                 allIzin: @json($allIzin),
                 filteredIzin: [],
 
@@ -407,6 +423,7 @@
                 filterIzin() {
                     let result = this.allIzin;
 
+                    // Filter berdasarkan pencarian nama
                     if (this.searchQuery.trim() !== '') {
                         const query = this.searchQuery.toLowerCase();
                         result = result.filter(i =>
@@ -416,18 +433,41 @@
                         );
                     }
 
+                    // Filter berdasarkan jenis izin
                     if (this.filterJenisIzin !== '') {
                         result = result.filter(i => i.jenis_izin === this.filterJenisIzin);
+                    }
+
+                    // Filter berdasarkan tanggal
+                    if (this.filterTanggal !== '') {
+                        const tanggalFilter = new Date(this.filterTanggal);
+                        tanggalFilter.setHours(0, 0, 0, 0);
+                        result = result.filter(i => {
+                            const tanggalIzin = new Date(i.tanggal_izin);
+                            tanggalIzin.setHours(0, 0, 0, 0);
+                            return tanggalIzin.getTime() === tanggalFilter.getTime();
+                        });
                     }
 
                     this.filteredIzin = result;
                 },
 
+                resetFilter() {
+                    this.searchQuery = '';
+                    this.filterJenisIzin = '';
+                    this.filterTanggal = '';
+                    this.filterIzin();
+                },
+                
                 formatTanggal(tgl) {
-                    if(!tgl) return '-';
+                    if (!tgl) return '-';
+
                     const date = new Date(tgl);
-                    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-                    return date.toLocaleDateString('id-ID', options);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+
+                    return `${day}/${month}/${year}`;
                 },
 
                 handleDelete(id) {

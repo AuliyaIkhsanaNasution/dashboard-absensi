@@ -59,7 +59,7 @@
                         </div>
 
                         <!-- Filter -->
-                        <div class="flex gap-3">
+                        <div class="flex flex-col sm:flex-row gap-3">
                             <select 
                                 x-model="filterKategori"
                                 @change="filterLembur"
@@ -68,6 +68,22 @@
                                 <option value="Hari Kerja">Hari Kerja</option>
                                 <option value="Hari Libur">Hari Libur</option>
                             </select>
+                            
+                            <div class="flex-1">
+                                <input 
+                                    type="date"
+                                    x-model="filterTanggal"
+                                    @change="filterLembur"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    placeholder="Filter Tanggal Lembur"
+                                >
+                            </div>
+                            
+                            <button 
+                                @click="resetFilters"
+                                class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition text-sm whitespace-nowrap">
+                                Reset Filter
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -278,6 +294,15 @@
                             <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Jam Selesai:</p>
                             <p class="text-gray-800 font-semibold text-sm" x-text="selectedLembur.jam_selesai?.substring(0,5)"></p>
                         </div>
+                        <div>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">
+                                Total Lembur:
+                            </p>
+                            <p class="text-gray-800 font-semibold text-sm">
+                                <span x-text="formatJam(selectedLembur.total_lembur)"></span>
+                            </p>
+                        </div>
+
                     </div>
                     <div class="mt-3 pt-3 border-t border-blue-200">
                         <p class="text-gray-500 font-medium mb-2 text-xs sm:text-sm">Keterangan:</p>
@@ -374,6 +399,7 @@
         </div>
     </div>
 
+
     <style> 
         [x-cloak] { display: none !important; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -391,6 +417,7 @@
                 selectedLembur: {},
                 searchQuery: '',
                 filterKategori: '',
+                filterTanggal: '',
                 allLembur: @json($allLembur),
                 filteredLembur: [],
 
@@ -400,27 +427,81 @@
 
                 filterLembur() {
                     let result = this.allLembur;
+                    const query = this.searchQuery.toLowerCase().trim();
 
-                    if (this.searchQuery.trim() !== '') {
-                        const query = this.searchQuery.toLowerCase();
-                        result = result.filter(l =>
-                            l.karyawan.nama.toLowerCase().includes(query) ||
-                            l.karyawan.jabatan.toLowerCase().includes(query)
-                        );
+                    // Filter berdasarkan pencarian nama karyawan
+                    if (query !== '') {
+                        result = result.filter(l => {
+                            const nama = l.karyawan.nama.toLowerCase();
+                            const jabatan = l.karyawan.jabatan.toLowerCase();
+                            const nip = l.karyawan.nip.toLowerCase();
+
+                            return (
+                                nama.includes(query) ||
+                                jabatan.includes(query) ||
+                                nip.includes(query)
+                            );
+                        });
                     }
 
+                    // Filter berdasarkan kategori
                     if (this.filterKategori !== '') {
                         result = result.filter(l => l.kategori === this.filterKategori);
+                    }
+
+                    // Filter berdasarkan tanggal lembur
+                    if (this.filterTanggal !== '') {
+                        result = result.filter(l => {
+                            if (!l.tgl_lembur) return false;
+                            
+                            try {
+                                // Parse tanggal dari database
+                                const lemburDate = new Date(l.tgl_lembur);
+                                // Parse tanggal dari filter
+                                const filterDate = new Date(this.filterTanggal);
+                                
+                                // Bandingkan hanya bagian tanggal (tahun, bulan, hari)
+                                return lemburDate.getFullYear() === filterDate.getFullYear() &&
+                                       lemburDate.getMonth() === filterDate.getMonth() &&
+                                       lemburDate.getDate() === filterDate.getDate();
+                            } catch (e) {
+                                console.error('Error parsing date:', e);
+                                return false;
+                            }
+                        });
                     }
 
                     this.filteredLembur = result;
                 },
 
+                resetFilters() {
+                    this.searchQuery = '';
+                    this.filterKategori = '';
+                    this.filterTanggal = '';
+                    this.filteredLembur = this.allLembur;
+                },
+
                 formatTanggal(tgl) {
-                    if(!tgl) return '-';
+                    if (!tgl) return '-';
+
                     const date = new Date(tgl);
-                    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-                    return date.toLocaleDateString('id-ID', options);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+
+                    return `${day}/${month}/${year}`;
+                },
+
+                formatJam(total) {
+                    if (!total) return '-';
+
+                    const totalMenit = Math.round(total * 60);
+                    const jam = Math.floor(totalMenit / 60);
+                    const menit = totalMenit % 60;
+
+                    return menit === 0
+                        ? `${jam} jam`
+                        : `${jam} jam ${menit} menit`;
                 },
 
                 handleDelete(id) {

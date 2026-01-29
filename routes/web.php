@@ -9,6 +9,7 @@ use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\IzinController;
 use App\Http\Controllers\CutiController; 
 use App\Http\Controllers\LemburController;
+use App\Http\Controllers\ShiftController;
 // Import Model untuk Dashboard
 use App\Models\Karyawan;
 use App\Models\Absensi;
@@ -121,4 +122,11 @@ Route::delete('/lembur/{lembur}', [LemburController::class, 'destroy'])->name('l
 Route::patch('/lembur/{id}/status', [LemburController::class, 'updateStatus'])
     ->name('lembur.status');
 
-});
+    // ============================================
+    // Kelola Shift
+    // ============================================
+    Route::get('/shift', [ShiftController::class, 'index'])->name('shift');
+    Route::post('/shift', [ShiftController::class, 'store'])->name('shift.store');
+    Route::put('/shift/{id}', [ShiftController::class, 'update'])->name('shift.update');
+    Route::delete('/shift/{id}', [ShiftController::class, 'destroy'])->name('shift.destroy');    });
+

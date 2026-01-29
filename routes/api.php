@@ -3,11 +3,13 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\KaryawanAuthController;
-use App\Http\Controllers\Api\AbsensiController;
+use App\Http\Controllers\Api\AbsensiApiController;
 use App\Http\Controllers\Api\KaryawanController;
 use App\Http\Controllers\Api\IzinApiController;
 use App\Http\Controllers\Api\CutiApiController;
 use App\Http\Controllers\Api\LemburApiController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ShiftApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,9 +25,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // LOGOUT
     Route::post('/logout', [KaryawanAuthController::class, 'logout']);
-
-    // ABSENSI
-    Route::post('/absensi', [AbsensiController::class, 'store']);
 
     // IZIN (KARYAWAN)
     Route::post('/izin', [IzinApiController::class, 'store']);
@@ -56,5 +55,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/karyawan/home', [KaryawanController::class, 'home']);
     Route::get('/karyawan/profile', [KaryawanController::class, 'profile']);
 
-    
+    // PROFILE
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
+
+    //ABSENSI
+    Route::get('/absensi/hari-ini', [AbsensiApiController::class, 'hariIni']);
+    Route::post('/absensi/masuk', [AbsensiApiController::class, 'masuk']);
+    Route::post('/absensi/pulang', [AbsensiApiController::class, 'pulang']);
+    Route::get('/absensi/riwayat', [AbsensiApiController::class, 'riwayat']);
+
+    //SHIFT
+    Route::get('/absensi/shifts', [ShiftApiController::class, 'shiftsForAbsensi']);
+
 });

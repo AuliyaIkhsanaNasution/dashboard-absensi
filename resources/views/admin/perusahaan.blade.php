@@ -321,6 +321,23 @@
                                 </div>
                             </div>
                             <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                                Radius Absensi (meter)
+                            </label>
+                            <input 
+                                type="number" 
+                                name="radius_absen" 
+                                min="1" 
+                                max="5000"
+                                value="100"
+                                class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                required
+                            >
+                            <p class="text-[11px] text-gray-500 mt-1">
+                                Contoh: 50 = 50 meter
+                            </p>
+                        </div>
+                            <div>
                                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Logo</label>
                                 <input type="file" name="logo" class="w-full text-xs">
                             </div>
@@ -377,6 +394,20 @@
                                     <input type="text" name="longitude" id="lng_edit" x-model="selectedPerusahaan.longitude" class="w-full border bg-gray-50 p-2 rounded-lg outline-none text-sm" readonly required>
                                 </div>
                             </div>
+                            <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                                Radius Absensi (meter)
+                            </label>
+                            <input 
+                                type="number" 
+                                name="radius_absen"
+                                min="1"
+                                max="5000"
+                                x-model="selectedPerusahaan.radius_absen"
+                                class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
+                                required
+                            >
+                        </div>
                         </div>
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Lokasi di Peta</label>

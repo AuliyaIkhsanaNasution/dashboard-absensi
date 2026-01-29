@@ -25,6 +25,7 @@ class PerusahaanController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
+            'radius_absen' => 'required|integer|min:1|max:5000',
         ]);
 
         $data = $request->all();
@@ -41,11 +42,14 @@ class PerusahaanController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nama_pt' => 'required',
-            'email' => 'required|email',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-        ]);
+        'nama_pt'      => 'required|string|max:255',
+        'email'        => 'required|email',
+        'telepon'      => 'required|string|max:20',
+        'alamat'       => 'required|string',
+        'latitude'     => 'required|numeric|between:-90,90',
+        'longitude'    => 'required|numeric|between:-180,180',
+        'radius_absen' => 'required|integer|min:1|max:5000',
+    ]);
 
         $perusahaan = Perusahaan::findOrFail($id);
         $data = $request->all();

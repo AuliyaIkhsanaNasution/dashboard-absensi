@@ -23,7 +23,7 @@ class Absensi extends Model
         'karyawan_id',
         'perusahaan_id', // Tambahan: Agar data perusahaan tersimpan permanen
         'tanggal',
-        'shift',
+        'shift_id',
         'jam_masuk',
         'jam_pulang',
         'foto_masuk',
@@ -88,5 +88,10 @@ class Absensi extends Model
     public function scopeToday($query)
     {
         return $query->whereDate('tanggal', Carbon::today());
+    }
+
+    public function shift()
+    {
+    return $this->belongsTo(\App\Models\Shift::class);
     }
 }

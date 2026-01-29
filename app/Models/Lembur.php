@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Lembur extends Model
 {
@@ -26,21 +27,43 @@ class Lembur extends Model
         'tgl_lembur' => 'date',
     ];
 
+    // supaya ikut muncul di API response
+    protected $appends = ['durasi', 'total_lembur'];
+
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class);
     }
 
-    // Opsional: durasi lembur (menit)
+    /**
+     * Durasi lembur dalam MENIT
+     */
     public function getDurasiAttribute()
     {
         if (!$this->jam_mulai || !$this->jam_selesai) {
             return null;
         }
 
-        $mulai = \Carbon\Carbon::createFromTimeString($this->jam_mulai);
-        $selesai = \Carbon\Carbon::createFromTimeString($this->jam_selesai);
+        $mulai   = Carbon::parse($this->jam_mulai);
+        $selesai = Carbon::parse($this->jam_selesai);
+
+        // lembur lewat tengah malam
+        if ($selesai->lessThan($mulai)) {
+            $selesai->addDay();
+        }
 
         return $mulai->diffInMinutes($selesai);
+    }
+
+    /**
+     * Total lembur dalam JAM (decimal)
+     */
+    public function getTotalLemburAttribute()
+    {
+        if ($this->durasi === null) {
+            return null;
+        }
+
+        return round($this->durasi / 60, 2);
     }
 }

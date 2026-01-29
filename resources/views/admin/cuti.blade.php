@@ -59,7 +59,7 @@
                         </div>
 
                         <!-- Filter -->
-                        <div class="flex gap-3">
+                        <div class="flex flex-col sm:flex-row gap-3">
                             <select 
                                 x-model="filterJenisCuti"
                                 @change="filterCuti"
@@ -71,6 +71,22 @@
                                 <option value="Cuti Besar">Cuti Besar</option>
                                 <option value="Cuti Tanpa Gaji">Cuti Tanpa Gaji</option>
                             </select>
+                            
+                            <div class="flex-1">
+                                <input 
+                                    type="date"
+                                    x-model="filterTanggal"
+                                    @change="filterCuti"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                    placeholder="Filter Tanggal Mulai"
+                                >
+                            </div>
+                            
+                            <button 
+                                @click="resetFilters"
+                                class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition text-sm whitespace-nowrap">
+                                Reset Filter
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -83,6 +99,7 @@
                                 <tr>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Karyawan</th>
                                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Jenis Cuti</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Tanggal Mulai</th>
                                     <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase">Aksi</th>
                                 </tr>
                             </thead>
@@ -108,6 +125,9 @@
                                         <td class="px-6 py-4">
                                             <span class="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800" 
                                                 x-text="cuti.jenis_cuti"></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-gray-800">
+                                            <span x-text="formatTanggal(cuti.tanggal_mulai)"></span>
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             <div class="flex items-center justify-center gap-1">
@@ -141,7 +161,7 @@
                                 
                                 <template x-if="filteredCuti.length === 0">
                                     <tr>
-                                        <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                                        <td colspan="4" class="px-6 py-10 text-center text-gray-500">
                                             <div class="flex flex-col items-center justify-center">
                                                 <svg class="w-16 h-16 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -234,137 +254,213 @@
         </main>
     </div>
 
-    {{-- Modal View Detail --}}
-    <div x-show="openView" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         class="fixed inset-0 z-50 overflow-y-auto" 
-         x-cloak>
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="fixed inset-0 bg-black/60" @click="openView = false"></div>
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl p-4 sm:p-6 z-50 relative max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">Detail Cuti</h3>
-                        <p class="text-xs sm:text-sm text-gray-500 mt-1 truncate" x-text="'Karyawan: ' + selectedCuti.karyawan?.nama"></p>
+    {{-- Modal View Detail Cuti --}}
+<div
+    x-show="openView"
+    x-cloak
+    x-data="{
+        isPdf(file) {
+            return file && file.toLowerCase().endsWith('.pdf')
+        },
+        isImage(file) {
+            return file && ['jpg','jpeg','png','webp'].some(ext => file.toLowerCase().endsWith(ext))
+        }
+    }"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    class="fixed inset-0 z-50 overflow-y-auto"
+>
+    <div class="flex items-center justify-center min-h-screen p-4">
+
+        <!-- Overlay -->
+        <div class="fixed inset-0 bg-black/60" @click="openView = false"></div>
+
+        <!-- Modal -->
+        <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl p-4 sm:p-6 z-50 relative max-h-[90vh] overflow-y-auto">
+
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800">
+                        Detail Cuti
+                    </h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-1 truncate"
+                       x-text="'Karyawan: ' + (selectedCuti.karyawan?.nama ?? '-')">
+                    </p>
+                </div>
+                <button
+                    @click="openView = false"
+                    class="text-gray-400 hover:text-gray-600 text-2xl ml-2 flex-shrink-0">
+                    &times;
+                </button>
+            </div>
+
+            <!-- Informasi Cuti -->
+            <div class="mb-4 p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Jenis Cuti:</p>
+                        <p class="text-gray-800 font-semibold text-sm" x-text="selectedCuti.jenis_cuti"></p>
                     </div>
-                    <button @click="openView = false" class="text-gray-400 hover:text-gray-600 text-2xl ml-2 flex-shrink-0">&times;</button>
+                    <div>
+                        <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Mulai:</p>
+                        <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_mulai)"></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Selesai:</p>
+                        <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_selesai)"></p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Masuk Kerja:</p>
+                        <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_masuk_kerja)"></p>
+                    </div>
                 </div>
 
-                <div class="mb-4 p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Jenis Cuti:</p>
-                            <p class="text-gray-800 font-semibold text-sm" x-text="selectedCuti.jenis_cuti"></p>
+                <div class="mt-3 pt-3 border-t border-purple-200">
+                    <p class="text-gray-500 font-medium mb-2 text-xs sm:text-sm">Keterangan:</p>
+                    <p class="text-gray-700 text-xs sm:text-sm"
+                       x-text="selectedCuti.keterangan || 'Tidak ada keterangan.'">
+                    </p>
+                </div>
+
+                <div class="mt-3 pt-3 border-t border-purple-200">
+                    <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Status:</p>
+                    <span
+                        class="px-3 py-1 rounded-full text-xs font-semibold capitalize"
+                        :class="{
+                            'bg-yellow-100 text-yellow-800': selectedCuti.status === 'pending',
+                            'bg-green-100 text-green-800': selectedCuti.status === 'approved',
+                            'bg-red-100 text-red-800': selectedCuti.status === 'rejected'
+                        }"
+                        x-text="selectedCuti.status">
+                    </span>
+                </div>
+            </div>
+
+            <!-- Dokumen Lampiran -->
+            <div>
+                <p class="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                    Dokumen Lampiran:
+                </p>
+
+                <div class="bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden min-h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300">
+
+                    <!-- PREVIEW PDF -->
+                    <template x-if="selectedCuti?.dokumen && isPdf(selectedCuti.dokumen)">
+                        <iframe
+                            :src="'/storage/' + selectedCuti.dokumen"
+                            class="w-full h-[70vh]"
+                            frameborder="0">
+                        </iframe>
+                    </template>
+
+                    <!-- PREVIEW IMAGE -->
+                    <template x-if="selectedCuti?.dokumen && isImage(selectedCuti.dokumen)">
+                        <img
+                            :src="'/storage/' + selectedCuti.dokumen"
+                            class="max-w-full max-h-[70vh] object-contain">
+                    </template>
+
+                    <!-- FILE TIDAK DIDUKUNG -->
+                    <template x-if="selectedCuti?.dokumen && !isPdf(selectedCuti.dokumen) && !isImage(selectedCuti.dokumen)">
+                        <div class="text-center p-6">
+                            <p class="text-gray-500 text-sm mb-2">
+                                Format dokumen tidak didukung untuk pratinjau
+                            </p>
+                            <a
+                                :href="'/storage/' + selectedCuti.dokumen"
+                                target="_blank"
+                                class="text-blue-600 underline text-sm">
+                                Download Dokumen
+                            </a>
                         </div>
-                        <div>
-                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Mulai:</p>
-                            <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_mulai)"></p>
+                    </template>
+
+                    <!-- TIDAK ADA DOKUMEN -->
+                    <template x-if="!selectedCuti?.dokumen">
+                        <div class="text-center p-6 sm:p-8">
+                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-2"
+                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p class="text-gray-500 text-sm">
+                                Tidak ada dokumen lampiran.
+                            </p>
                         </div>
-                        <div>
-                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Selesai:</p>
-                            <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_selesai)"></p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Masuk Kerja:</p>
-                            <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedCuti.tanggal_masuk_kerja)"></p>
-                        </div>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-purple-200">
-                        <p class="text-gray-500 font-medium mb-2 text-xs sm:text-sm">Keterangan:</p>
-                        <p class="text-gray-700 text-xs sm:text-sm" x-text="selectedCuti.keterangan || 'Tidak ada keterangan.'"></p>
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-purple-200">
-                        <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Status:</p>
-                        <span
-                            class="px-3 py-1 rounded-full text-xs font-semibold capitalize"
-                            :class="{
-                                'bg-yellow-100 text-yellow-800': selectedCuti.status === 'pending',
-                                'bg-green-100 text-green-800': selectedCuti.status === 'approved',
-                                'bg-red-100 text-red-800': selectedCuti.status === 'rejected'
-                            }"
-                            x-text="selectedCuti.status">
-                        </span>
-                    </div>
-                </div>
-                
-                <div>
-                    <p class="text-xs sm:text-sm font-semibold text-gray-700 mb-2">Dokumen Lampiran:</p>
-                    <div class="bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden min-h-[200px] sm:min-h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300">
-                        <template x-if="selectedCuti && selectedCuti.dokumen">
-                            <img :src="'/storage/' + selectedCuti.dokumen" class="max-w-full max-h-[60vh] sm:max-h-[70vh] object-contain">
-                        </template>
-                        <template x-if="!selectedCuti || !selectedCuti.dokumen">
-                            <div class="text-center p-6 sm:p-8">
-                                <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <p class="text-gray-500 text-xs sm:text-sm">Tidak ada dokumen lampiran.</p>
-                            </div>
-                        </template>
-                    </div>
+                    </template>
+
                 </div>
 
-                <div class="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-3">
-                    {{-- Pending --}}
-                    <form
-                        :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'"
-                        method="POST">
-                        @csrf
-                        @method('PATCH')
-                        <input type="hidden" name="status" value="pending">
-                        <button
-                            type="submit"
-                            class="w-full py-2 rounded-lg font-bold transition text-xs sm:text-sm"
-                            :class="selectedCuti.status === 'pending'
-                                ? 'bg-yellow-400 text-white cursor-not-allowed'
-                                : 'bg-yellow-500 hover:bg-yellow-600 text-white'">
-                            Pending
-                        </button>
-                    </form>
+                <!-- Tombol Buka / Download -->
+                <template x-if="selectedCuti?.dokumen">
+                    <a
+                        :href="'/storage/' + selectedCuti.dokumen"
+                        target="_blank"
+                        class="block text-center text-blue-600 text-sm underline mt-2">
+                        Buka / Download Dokumen
+                    </a>
+                </template>
+            </div>
 
-                    {{-- Approve --}}
-                    <form
-                        :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'"
-                        method="POST">
-                        @csrf
-                        @method('PATCH')
-                        <input type="hidden" name="status" value="approved">
-                        <button
-                            type="submit"
-                            class="w-full py-2 rounded-lg font-bold transition text-xs sm:text-sm"
-                            :class="selectedCuti.status === 'approved'
-                                ? 'bg-green-500 text-white cursor-not-allowed'
-                                : 'bg-green-600 hover:bg-green-700 text-white'">
-                            Approve
-                        </button>
-                    </form>
+            <!-- Action Button -->
+            <div class="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-3">
+                {{-- Pending --}}
+                <form :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="pending">
+                    <button type="submit"
+                        class="w-full py-2 rounded-lg font-bold text-xs sm:text-sm"
+                        :class="selectedCuti.status === 'pending'
+                            ? 'bg-yellow-400 text-white cursor-not-allowed'
+                            : 'bg-yellow-500 hover:bg-yellow-600 text-white'">
+                        Pending
+                    </button>
+                </form>
 
-                    {{-- Reject --}}
-                    <form
-                        :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'"
-                        method="POST">
-                        @csrf
-                        @method('PATCH')
-                        <input type="hidden" name="status" value="rejected">
-                        <button
-                            type="submit"
-                            class="w-full py-2 rounded-lg font-bold transition text-xs sm:text-sm"
-                            :class="selectedCuti.status === 'rejected'
-                                ? 'bg-red-500 text-white cursor-not-allowed'
-                                : 'bg-red-600 hover:bg-red-700 text-white'">
-                            Reject
-                        </button>
-                    </form>
-                </div>
+                {{-- Approve --}}
+                <form :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="approved">
+                    <button type="submit"
+                        class="w-full py-2 rounded-lg font-bold text-xs sm:text-sm"
+                        :class="selectedCuti.status === 'approved'
+                            ? 'bg-green-500 text-white cursor-not-allowed'
+                            : 'bg-green-600 hover:bg-green-700 text-white'">
+                        Approve
+                    </button>
+                </form>
 
-                <div class="mt-4 sm:mt-6">
-                    <button @click="openView = false" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 sm:py-3 rounded-lg transition text-sm sm:text-base">Tutup</button>
-                </div>
+                {{-- Reject --}}
+                <form :action="'{{ url('/admin/cuti') }}/' + selectedCuti.id + '/status'" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="rejected">
+                    <button type="submit"
+                        class="w-full py-2 rounded-lg font-bold text-xs sm:text-sm"
+                        :class="selectedCuti.status === 'rejected'
+                            ? 'bg-red-500 text-white cursor-not-allowed'
+                            : 'bg-red-600 hover:bg-red-700 text-white'">
+                        Reject
+                    </button>
+                </form>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-4 sm:mt-6">
+                <button
+                    @click="openView = false"
+                    class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 sm:py-3 rounded-lg transition">
+                    Tutup
+                </button>
             </div>
         </div>
     </div>
+</div>
+
 
     <style> 
         [x-cloak] { display: none !important; }
@@ -383,6 +479,7 @@
                 selectedCuti: {},
                 searchQuery: '',
                 filterJenisCuti: '',
+                filterTanggal: '',
                 allCuti: @json($allCuti),
                 filteredCuti: [],
 
@@ -392,28 +489,71 @@
 
                 filterCuti() {
                     let result = this.allCuti;
+                    const query = this.searchQuery.toLowerCase().trim();
 
-                    if (this.searchQuery.trim() !== '') {
-                        const query = this.searchQuery.toLowerCase();
-                        result = result.filter(c =>
-                            c.karyawan.nama.toLowerCase().includes(query) ||
-                            c.karyawan.jabatan.toLowerCase().includes(query) ||
-                            c.karyawan.nip.toLowerCase().includes(query)
-                        );
+                    // Filter berdasarkan pencarian
+                    if (query !== '') {
+                        result = result.filter(c => {
+                            const nama = c.karyawan.nama.toLowerCase();
+                            const jabatan = c.karyawan.jabatan.toLowerCase();
+                            const nip = c.karyawan.nip.toLowerCase();
+                            const jenis = c.jenis_cuti.toLowerCase();
+
+                            return (
+                                nama.includes(query) ||
+                                jabatan.includes(query) ||
+                                nip.includes(query) ||
+                                jenis.includes(query)
+                            );
+                        });
                     }
 
+                    // Filter berdasarkan jenis cuti
                     if (this.filterJenisCuti !== '') {
                         result = result.filter(c => c.jenis_cuti === this.filterJenisCuti);
+                    }
+
+                    // Filter berdasarkan tanggal mulai
+                    if (this.filterTanggal !== '') {
+                        result = result.filter(c => {
+                            if (!c.tanggal_mulai) return false;
+                            
+                            try {
+                                // Parse tanggal dari database
+                                const cutiDate = new Date(c.tanggal_mulai);
+                                // Parse tanggal dari filter
+                                const filterDate = new Date(this.filterTanggal);
+                                
+                                // Bandingkan hanya bagian tanggal (tahun, bulan, hari)
+                                return cutiDate.getFullYear() === filterDate.getFullYear() &&
+                                       cutiDate.getMonth() === filterDate.getMonth() &&
+                                       cutiDate.getDate() === filterDate.getDate();
+                            } catch (e) {
+                                console.error('Error parsing date:', e);
+                                return false;
+                            }
+                        });
                     }
 
                     this.filteredCuti = result;
                 },
 
+                resetFilters() {
+                    this.searchQuery = '';
+                    this.filterJenisCuti = '';
+                    this.filterTanggal = '';
+                    this.filteredCuti = this.allCuti;
+                },
+
                 formatTanggal(tgl) {
-                    if(!tgl) return '-';
+                    if (!tgl) return '-';
+
                     const date = new Date(tgl);
-                    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-                    return date.toLocaleDateString('id-ID', options);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+
+                    return `${day}/${month}/${year}`;
                 },
 
                 handleDelete(id) {

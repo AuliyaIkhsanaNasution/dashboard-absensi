@@ -55,7 +55,7 @@ class LemburApiController extends Controller
             'jam_selesai'  => 'required|after:jam_mulai',
             'kategori'     => 'required|in:Hari Kerja,Hari Libur',
             'keterangan'   => 'required|string',
-            'dokumen'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'dokumen'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
         $dokumenPath = null;
