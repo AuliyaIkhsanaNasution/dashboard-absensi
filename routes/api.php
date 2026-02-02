@@ -66,7 +66,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/absensi/pulang', [AbsensiApiController::class, 'pulang']);
     Route::get('/absensi/riwayat', [AbsensiApiController::class, 'riwayat']);
 
-    //SHIFT
     Route::get('/absensi/shifts', [ShiftApiController::class, 'shiftsForAbsensi']);
+
+    // Absensi endpoints
+    Route::post('/absensi/masuk', [AbsensiApiController::class, 'masuk']);
+    Route::post('/absensi/pulang', [AbsensiApiController::class, 'pulang']);
+    Route::get('/absensi/riwayat', [AbsensiApiController::class, 'riwayat']);
+    Route::get('/shifts', [AbsensiApiController::class, 'getShifts']);
 
 });

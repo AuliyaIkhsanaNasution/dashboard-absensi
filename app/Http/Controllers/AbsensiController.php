@@ -58,6 +58,9 @@ class AbsensiController extends Controller
             'status'      => 'required|in:Tepat Waktu,Terlambat',
             'jam_masuk'   => 'nullable',
             'jam_pulang'  => 'nullable',
+            'latitude'      => '0',
+            'longitude'     => '0',
+            'jarak'         => '0', 
         ], [
             'karyawan_id.required' => 'Karyawan wajib dipilih',
             'shift_id.required'    => 'Shift wajib dipilih',
@@ -85,6 +88,9 @@ class AbsensiController extends Controller
             'status'        => $request->status,
             'jam_masuk'     => $request->jam_masuk ?? $shift->jam_masuk,
             'jam_pulang'    => $request->jam_pulang ?? $shift->jam_pulang,
+            'latitude'      => $request->latitude ?? 0,
+            'longitude'     => $request->longitude ?? 0,
+            'jarak'         => $request->jarak ?? 0,
         ]);
 
         return redirect()->back()->with('success', 'Data absensi berhasil ditambahkan!');

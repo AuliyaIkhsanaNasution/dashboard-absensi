@@ -27,10 +27,13 @@ class Absensi extends Model
         'jam_masuk',
         'jam_pulang',
         'foto_masuk',
-        'foto_pulang',
+        'foto_keluar',
         'lokasi_masuk',
         'lokasi_pulang',
-        'status', 
+        'status',
+        'latitude',
+        'longitude',
+        'jarak', 
     ];
 
     /**
@@ -46,6 +49,11 @@ class Absensi extends Model
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'karyawan_id');
+    }
+
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class, 'shift_id');
     }
 
     /**
@@ -88,10 +96,5 @@ class Absensi extends Model
     public function scopeToday($query)
     {
         return $query->whereDate('tanggal', Carbon::today());
-    }
-
-    public function shift()
-    {
-    return $this->belongsTo(\App\Models\Shift::class);
     }
 }
