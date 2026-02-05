@@ -21,6 +21,20 @@ class ProfileController extends Controller
         ]);
     }
 
+        public function catat(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'nama' => $user->nama,
+            'alamat' => $user->alamat,
+            'no_wa' => $user->no_wa,
+            'tanggal_lahir' => $user->tanggal_lahir,
+            'nip' => $user->nip,
+            'jabatan' => $user->jabatan,
+        ]);
+    }
+
     public function update(Request $request)
     {
         $user = $request->user();

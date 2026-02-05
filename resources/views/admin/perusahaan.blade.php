@@ -337,6 +337,29 @@
                                 Contoh: 50 = 50 meter
                             </p>
                         </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                                Hari Libur
+                            </label>
+
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                @php
+                                    $hariList = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+                                @endphp
+
+                                @foreach($hariList as $hari)
+                                    <label class="flex items-center gap-2">
+                                        <input type="checkbox" name="hari_libur[]" value="{{ $hari }}"
+                                            class="rounded text-blue-500 focus:ring-blue-400">
+                                        {{ $hari }}
+                                    </label>
+                                @endforeach
+                            </div>
+
+                            <p class="text-[11px] text-gray-500 mt-1">
+                                Pilih satu atau lebih hari libur perusahaan.
+                            </p>
+                        </div>
                             <div>
                                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Logo</label>
                                 <input type="file" name="logo" class="w-full text-xs">
@@ -408,7 +431,38 @@
                                 required
                             >
                         </div>
+                        <div>
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                                Hari Libur
+                            </label>
+
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+
+                                @php
+                                    $hariList = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+                                @endphp
+
+                                @foreach($hariList as $hari)
+                                    <label class="flex items-center gap-2">
+                                        <input 
+                                            type="checkbox" 
+                                            name="hari_libur[]" 
+                                            value="{{ $hari }}"
+                                            :checked="selectedPerusahaan.hari_libur && selectedPerusahaan.hari_libur.includes('{{ $hari }}')"
+                                            class="rounded text-yellow-500 focus:ring-yellow-400">
+                                        {{ $hari }}
+                                    </label>
+                                @endforeach
+
+                            </div>
+
+                            <p class="text-[11px] text-gray-500 mt-1">
+                                Centang hari yang menjadi hari libur perusahaan.
+                            </p>
                         </div>
+
+                        </div>
+                        
                         <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Lokasi di Peta</label>
                             <div id="mapEdit" class="h-full min-h-[250px] sm:min-h-[300px] w-full rounded-lg border"></div>

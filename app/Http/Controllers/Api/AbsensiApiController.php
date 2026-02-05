@@ -235,4 +235,59 @@ class AbsensiApiController extends Controller
 
         return (int) round($earthRadius * 2 * atan2(sqrt($a), sqrt(1 - $a)));
     }
+
+        /**
+     * =====================
+     * ABSENSI HARI INI
+     * =====================
+     */
+    public function hariIni()
+    {
+        $user = auth('sanctum')->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        $absensi = Absensi::where('karyawan_id', $user->id)
+            ->whereDate('tanggal', $today)
+            ->first();
+
+        if (!$absensi) {
+            return response()->json([
+                "success" => true,
+                "data" => null
+            ]);
+        }
+
+        // HITUNG TOTAL KERJA
+        $totalKerja = null;
+        if ($absensi->jam_masuk && $absensi->jam_pulang) {
+            $mulai   = Carbon::parse($absensi->jam_masuk);
+            $selesai = Carbon::parse($absensi->jam_pulang);
+            $diff    = $mulai->diff($selesai);
+
+            $totalKerja = $diff->h . "j " . $diff->i . "m";
+        }
+
+        return response()->json([
+            "success" => true,
+            "data" => [
+                "id"             => $absensi->id,
+                "karyawan_id"    => $absensi->karyawan_id,
+                "shift_id"       => $absensi->shift_id,
+                "perusahaan_id"  => $absensi->perusahaan_id,
+                "tanggal"        => $absensi->tanggal,
+                "jam_masuk"      => $absensi->jam_masuk,
+                "foto_masuk"     => $absensi->foto_masuk,
+                "jam_pulang"     => $absensi->jam_pulang,
+                "foto_keluar"    => $absensi->foto_keluar,
+                "status"         => $absensi->status,
+                "created_at"     => $absensi->created_at,
+                "updated_at"     => $absensi->updated_at,
+                "total_kerja"    => $totalKerja
+            ]
+        ]);
+    }
 }

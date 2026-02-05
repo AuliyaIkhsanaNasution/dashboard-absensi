@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CutiApiController;
 use App\Http\Controllers\Api\LemburApiController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ShiftApiController;
+use App\Http\Controllers\Api\RekapAbsensiApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // PROFILE
     Route::get('/profile', [ProfileController::class, 'show']);
+    Route::get('/profile/catat', [ProfileController::class, 'catat']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto']);
 
@@ -73,5 +75,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/absensi/pulang', [AbsensiApiController::class, 'pulang']);
     Route::get('/absensi/riwayat', [AbsensiApiController::class, 'riwayat']);
     Route::get('/shifts', [AbsensiApiController::class, 'getShifts']);
+
+    //REKAP ABSENSI
+    Route::get('/rekap', [RekapAbsensiApiController::class, 'rekap']);
 
 });
