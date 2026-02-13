@@ -45,6 +45,7 @@ class Karyawan extends Authenticatable
         return $this->absensis()
             ->where('status', 'Hadir')
             ->whereMonth('tanggal', date('m'))
+            
             ->whereYear('tanggal', date('Y'))
             ->count();
     }

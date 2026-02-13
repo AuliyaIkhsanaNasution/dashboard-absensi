@@ -103,4 +103,40 @@ class IzinApiController extends Controller
                 'data' => $enum
             ]);
         }
+
+    public function izinHariIni()
+{
+    $user = auth('sanctum')->user();
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'Unauthenticated'
+        ], 401);
+    }
+
+    // Ambil tanggal hari ini
+    $today = date('Y-m-d');
+
+    // Cek apakah ada izin hari ini
+    $izin = Izin::where('karyawan_id', $user->id)
+        ->where('tanggal_izin', $today)
+        ->first();
+
+    if (!$izin) {
+        return response()->json([
+            'success' => true,
+            'data' => null
+        ]);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'tanggal' => $izin->tanggal_izin,
+            'keterangan' => $izin->keterangan,
+            'jenis_izin' => $izin->jenis_izin,
+            'dokumen' => $izin->dokumen ? url('dokumen_izin/' . $izin->dokumen) : null,
+        ]
+    ]);
+}
 }

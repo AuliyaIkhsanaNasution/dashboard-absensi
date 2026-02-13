@@ -55,51 +55,57 @@
             @endif
 
             <div class="p-4 sm:p-6 lg:p-8">
-                
-                <!-- Filter & Search Section -->
-                <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
-                    <div class="flex flex-col gap-4">
-                        
-                        <!-- Search Box -->
-                        <div class="w-full">
-                            <div class="relative">
-                                <input 
-                                    type="text" 
-                                    x-model="searchQuery"
-                                    @input="filterData"
-                                    placeholder="Cari Nama, Unit Kerja, Jabatan..." 
-                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
-                            </div>
-                        </div>
+    
+    <!-- Header dengan Tombol (SAMA seperti Perusahaan) -->
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex-1">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-700">Daftar Karyawan</h2>
+            </div>
+            <div class="flex gap-3">
+                <button @click="openAdd = true" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg flex items-center justify-center gap-2 transition text-sm sm:text-base whitespace-nowrap">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    <span class="hidden sm:inline">Tambah Karyawan</span>
+                    <span class="sm:hidden">Tambah</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
-                        <!-- Filter & Button -->
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <select 
-                                x-model="filterJabatan"
-                                @change="filterData"
-                                class="flex-1 sm:flex-none px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Semua Jabatan</option>
-                                <template x-for="jabatan in uniqueJabatan" :key="jabatan">
-                                    <option :value="jabatan" x-text="jabatan"></option>
-                                </template>
-                            </select>
-                            
-                            <button 
-                                @click="openAdd = true" 
-                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg flex items-center justify-center gap-2 transition whitespace-nowrap">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                <span class="hidden sm:inline">Tambah Karyawan</span>
-                                <span class="sm:hidden">Tambah</span>
-                            </button>
-                        </div>
-                    </div>
+    <!-- Filter & Search Section (Box Terpisah) -->
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+        <div class="flex flex-col gap-4">
+            
+            <!-- Search Box -->
+            <div class="w-full">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        x-model="searchQuery"
+                        @input="filterData"
+                        placeholder="Cari Nama, Unit Kerja, Jabatan..." 
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
                 </div>
+            </div>
 
+            <!-- Filter Jabatan -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <select 
+                    x-model="filterJabatan"
+                    @change="filterData"
+                    class="px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Semua Jabatan</option>
+                    <template x-for="jabatan in uniqueJabatan" :key="jabatan">
+                        <option :value="jabatan" x-text="jabatan"></option>
+                    </template>
+                </select>
+            </div>
+        </div>
+    </div>
                 <!-- Table Section -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <!-- Desktop Table -->

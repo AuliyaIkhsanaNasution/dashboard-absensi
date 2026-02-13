@@ -79,4 +79,6 @@ Route::middleware('auth:sanctum')->group(function () {
     //REKAP ABSENSI
     Route::get('/rekap', [RekapAbsensiApiController::class, 'rekap']);
 
+    Route::get('/izin/hari-ini', [IzinApiController::class, 'izinHariIni']);
+
 });
