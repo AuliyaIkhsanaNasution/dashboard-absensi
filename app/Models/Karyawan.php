@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Laravel\Sanctum\HasApiTokens;
-
+use Illuminate\Support\Facades\Hash;
 class Karyawan extends Authenticatable
 {
     use HasFactory, HasApiTokens;
@@ -17,6 +17,7 @@ class Karyawan extends Authenticatable
         'foto',
         'nip',
         'nama',
+        'email',
         'jabatan',
         'alamat',
         'tanggal_lahir',
@@ -56,4 +57,15 @@ public function getFotoAttribute($value)
         ? asset('storage/' . $value)
         : null;
 }
+
+public function setPasswordAttribute($value)
+{
+    // Jika nilai sudah di-hash (ditandai dengan $2y$), jangan hash ulang
+    if (substr($value, 0, 4) === '$2y$') {
+        $this->attributes['password'] = $value;
+    } else {
+        $this->attributes['password'] = Hash::make($value);
+    }
+}
+
 }

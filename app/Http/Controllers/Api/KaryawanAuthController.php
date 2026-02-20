@@ -20,12 +20,11 @@ class KaryawanAuthController extends Controller
             ->where('status', 'Aktif')
             ->first();
 
-        if (! $karyawan || $request->password !== $karyawan->password) {
+        if (! $karyawan || !Hash::check($request->password, $karyawan->password)) {
             return response()->json([
                 'message' => 'NIP atau password salah'
             ], 401);
         }
-
         $karyawan->tokens()->delete();
 
         $token = $karyawan->createToken('absensi-token')->plainTextToken;

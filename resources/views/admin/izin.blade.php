@@ -82,8 +82,8 @@
 
                             <!-- Tombol Reset Filter -->
                             <button 
-                                @click="resetFilter"
-                                class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition text-sm whitespace-nowrap"></button>
+                                @click="resetFilters"
+                                class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition text-sm whitespace-nowrap">
                                 Reset Filter
                             </button>
                         </div>

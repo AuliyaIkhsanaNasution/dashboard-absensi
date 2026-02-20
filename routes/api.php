@@ -11,12 +11,16 @@ use App\Http\Controllers\Api\LemburApiController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ShiftApiController;
 use App\Http\Controllers\Api\RekapAbsensiApiController;
+use App\Http\Controllers\Api\ForgotPasswordController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 */
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'forgotPassword']);
+// Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
 // LOGIN KARYAWAN
 Route::post('/login', [KaryawanAuthController::class, 'login']);
@@ -78,7 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //REKAP ABSENSI
     Route::get('/rekap', [RekapAbsensiApiController::class, 'rekap']);
-
     Route::get('/izin/hari-ini', [IzinApiController::class, 'izinHariIni']);
 
 });

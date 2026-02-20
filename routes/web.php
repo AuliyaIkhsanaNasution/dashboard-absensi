@@ -10,6 +10,8 @@ use App\Http\Controllers\IzinController;
 use App\Http\Controllers\CutiController; 
 use App\Http\Controllers\LemburController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\RekapController;
+use App\Http\Controllers\ResetPasswordController;
 // Import Model untuk Dashboard
 use App\Models\Karyawan;
 use App\Models\Absensi;
@@ -19,6 +21,17 @@ use App\Models\Absensi;
 | Web Routes
 |--------------------------------------------------------------------------
 */
+
+use Illuminate\View\View;
+
+Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
+
+Route::get(
+    uri: '/reset-password',
+    action: function (): View {
+        return view('reset-password');
+    }
+);
 
 // 1. Halaman Depan
 Route::get('/', function () {
@@ -58,6 +71,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // ============================================
     // Kelola Karyawan
     // ============================================
+    Route::post('/admin/karyawan/{id}/resend-email', [KaryawanController::class, 'resendEmail'])
+    ->name('admin.karyawan.resend-email');
     Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan');
     Route::post('/karyawan', [KaryawanController::class, 'store'])->name('karyawan.store');
     Route::put('/karyawan/{id}', [KaryawanController::class, 'update'])->name('karyawan.update');
@@ -128,5 +143,7 @@ Route::patch('/lembur/{id}/status', [LemburController::class, 'updateStatus'])
     Route::get('/shift', [ShiftController::class, 'index'])->name('shift');
     Route::post('/shift', [ShiftController::class, 'store'])->name('shift.store');
     Route::put('/shift/{id}', [ShiftController::class, 'update'])->name('shift.update');
-    Route::delete('/shift/{id}', [ShiftController::class, 'destroy'])->name('shift.destroy');    });
-
+    Route::delete('/shift/{id}', [ShiftController::class, 'destroy'])->name('shift.destroy');    
+    
+    Route::get('/rekap', [RekapController::class, 'index'])->name('rekap');
+});

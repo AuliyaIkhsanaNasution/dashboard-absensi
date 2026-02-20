@@ -303,7 +303,10 @@
                             <span class="text-xs sm:text-sm font-medium text-gray-600">Nama Lengkap</span>
                             <span class="text-xs sm:text-sm font-semibold text-gray-800 text-right" x-text="selectedKaryawan.nama"></span>
                         </div>
-
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <span class="text-xs sm:text-sm font-medium text-gray-600">Email</span>
+                            <span class="text-xs sm:text-sm font-semibold text-gray-800 text-right" x-text="selectedKaryawan.email"></span>
+                        </div>
                         <div class="flex justify-between py-2 border-b border-gray-200">
                             <span class="text-xs sm:text-sm font-medium text-gray-600">Unit Kerja</span>
                             <span class="text-xs sm:text-sm font-semibold text-gray-800 text-right" x-text="selectedKaryawan.perusahaan ? selectedKaryawan.perusahaan.nama_pt : '-'"></span>
@@ -338,8 +341,22 @@
                     </div>
                 </div>
 
-                <div class="mt-4 sm:mt-6 flex justify-end">
-                    <button @click="openDetail = false" class="px-4 sm:px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition text-sm sm:text-base">Tutup</button>
+                <div class="mt-4 sm:mt-6 flex justify-between">
+                    <form :action="'/admin/karyawan/' + selectedKaryawan.id + '/resend-email'" method="POST">
+                        @csrf
+                        <button 
+                            type="submit" 
+                            class="px-4 sm:px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition text-sm sm:text-base"
+                            onclick="return confirm('Kirim ulang email dengan password baru ke karyawan ini?')">
+                            📧 Kirim Ulang Email
+                        </button>
+                    </form>
+                    
+                    <button 
+                        @click="openDetail = false" 
+                        class="px-4 sm:px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition text-sm sm:text-base">
+                        Tutup
+                    </button>
                 </div>
             </div>
         </div>
@@ -376,6 +393,19 @@
                             <input type="text" name="nama_lengkap" placeholder="Masukkan nama sesuai KTP" value="{{ old('nama_lengkap') }}" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required>
                         </div>
 
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Email <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                name="email" 
+                                placeholder="Contoh: karyawan@email.com" 
+                                value="{{ old('email') }}" 
+                                class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" 
+                                required>
+                            <p class="text-xs text-gray-500 mt-1">Email ini akan digunakan untuk login dan menerima NIP & Password</p>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Unit Kerja <span class="text-red-500">*</span></label>
                             <select name="perusahaan_id" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required>
@@ -476,7 +506,17 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
                             <input type="text" name="nama_lengkap" x-model="selectedKaryawan.nama" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-sm" required>
                         </div>
-
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Email <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                name="email" 
+                                x-model="selectedKaryawan.email"
+                                class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-sm" 
+                                required>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Unit Kerja <span class="text-red-500">*</span></label>
                             <select name="perusahaan_id" x-model="selectedKaryawan.perusahaan_id" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-sm" required>
