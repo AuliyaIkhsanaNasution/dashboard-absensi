@@ -37,6 +37,16 @@
                 </div>
             </header>
 
+            @if($errors->any())
+            <div class="mx-4 sm:mx-6 lg:mx-8 mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <ul class="list-disc list-inside">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
             <div class="p-4 sm:p-6 lg:p-8">
                 
                 {{-- Filter dan Pencarian --}}
@@ -86,6 +96,17 @@
                                 class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition text-sm whitespace-nowrap">
                                 Reset Filter
                             </button>
+
+                            <!-- Tombol Tambah Izin -->
+                            <button 
+                                @click="openAdd = true"
+                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 transition text-sm whitespace-nowrap">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                <span class="hidden sm:inline">Tambah Izin</span>
+                                <span class="sm:hidden">Tambah</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -128,6 +149,7 @@
                                         <td class="px-6 py-4 text-sm text-gray-800" x-text="formatTanggal(izin.tanggal_izin)"></td>
                                         <td class="px-6 py-4 text-center">
                                             <div class="flex items-center justify-center gap-1">
+                                                <!-- Tombol View -->
                                                 <button 
                                                     @click="selectedIzin = izin; openView = true" 
                                                     class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition" 
@@ -138,6 +160,17 @@
                                                     </svg>
                                                 </button>
 
+                                                <!-- Tombol Edit -->
+                                                <button 
+                                                    @click="selectedIzin = Object.assign({}, izin); openEdit = true" 
+                                                    class="text-yellow-500 hover:bg-yellow-50 p-2 rounded-lg transition" 
+                                                    title="Edit Data">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
+                                                </button>
+
+                                                <!-- Tombol Hapus -->
                                                 <form :id="'delete-form-' + izin.id" :action="'/admin/izin/' + izin.id" method="POST">
                                                     @csrf 
                                                     @method('DELETE')
@@ -214,13 +247,18 @@
                                         class="flex-1 bg-blue-50 text-blue-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
                                         Lihat Detail
                                     </button>
-                                    <form :id="'delete-form-' + izin.id" :action="'/admin/izin/' + izin.id" method="POST" class="flex-1">
+                                    <button 
+                                        @click="selectedIzin = Object.assign({}, izin); openEdit = true" 
+                                        class="flex-1 bg-yellow-50 text-yellow-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-yellow-100 transition">
+                                        Edit
+                                    </button>
+                                    <form :id="'delete-form-' + izin.id" :action="'/admin/izin/' + izin.id" method="POST">
                                         @csrf 
                                         @method('DELETE')
                                         <button 
                                             type="button" 
                                             @click="handleDelete(izin.id)" 
-                                            class="w-full bg-red-50 text-red-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-100 transition">
+                                            class="bg-red-50 text-red-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-100 transition">
                                             Hapus
                                         </button>
                                     </form>
@@ -243,7 +281,191 @@
         </main>
     </div>
 
-    {{-- Modal View Dokumen --}}   
+    {{-- ===================== MODAL TAMBAH IZIN ===================== --}}
+    <div x-show="openAdd"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black/60" @click="openAdd = false"></div>
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md p-4 sm:p-6 z-50 relative max-h-[90vh] overflow-y-auto">
+                <h3 class="text-lg sm:text-xl font-bold mb-4 text-gray-800">Tambah Data Izin</h3>
+
+                <form action="{{ route('admin.izin.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="space-y-4">
+
+                        <!-- Pilih Karyawan -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Karyawan</label>
+                            <div class="relative" x-data="{ open: false, search: '' }">
+                                <input
+                                    type="text"
+                                    x-model="search"
+                                    @click="open = true"
+                                    @click.away="open = false"
+                                    placeholder="Ketik untuk mencari karyawan..."
+                                    class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                    autocomplete="off">
+
+                                <input type="hidden" name="karyawan_id" x-model="selectedKaryawanId">
+
+                                <div x-show="open"
+                                     class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                                     x-cloak>
+                                    <template x-for="k in karyawans.filter(item =>
+                                        item.nama.toLowerCase().includes(search.toLowerCase()) ||
+                                        item.nip.toLowerCase().includes(search.toLowerCase())
+                                    )" :key="k.id">
+                                        <div
+                                            @click="selectedKaryawanId = k.id; search = k.nama; open = false"
+                                            class="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 transition">
+                                            <p class="text-sm font-medium text-gray-800" x-text="k.nama"></p>
+                                            <p class="text-xs text-gray-500" x-text="k.nip + ' - ' + k.jabatan"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Jenis Izin -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Izin</label>
+                            <select name="jenis_izin" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required>
+                                <option value="">Pilih Jenis Izin</option>
+                                <option value="Izin sakit tanpa surat dokter">Sakit Tanpa Surat Dokter</option>
+                                <option value="Izin sakit dengan surat dokter">Sakit Dengan Surat Dokter</option>
+                                <option value="Izin keperluan keluarga">Keperluan Keluarga</option>
+                                <option value="Izin mengurus dokumen">Mengurus Dokumen</option>
+                                <option value="Izin pulang cepat">Pulang Cepat</option>
+                            </select>
+                        </div>
+
+                        <!-- Tanggal Izin -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Izin</label>
+                            <input type="date" name="tanggal_izin" value="{{ date('Y-m-d') }}"
+                                class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required>
+                        </div>
+
+                        <!-- Keterangan -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
+                            <textarea name="keterangan" rows="3"
+                                placeholder="Tulis keterangan izin..."
+                                class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm resize-none"></textarea>
+                        </div>
+
+                        <!-- Upload Dokumen -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Dokumen Lampiran <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                            <input type="file" name="dokumen" accept=".jpg,.jpeg,.png,.webp,.pdf"
+                                class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-600 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                            <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG, WEBP, PDF. Maks 5MB.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" @click="openAdd = false"
+                            class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition text-sm">Batal</button>
+                        <button type="submit"
+                            class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition text-sm">Simpan Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===================== MODAL EDIT IZIN ===================== --}}
+    <div x-show="openEdit"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black/60" @click="openEdit = false"></div>
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md p-4 sm:p-6 z-50 relative max-h-[90vh] overflow-y-auto">
+                <h3 class="text-lg sm:text-xl font-bold mb-4 text-gray-800">Edit Data Izin</h3>
+
+                <form :action="'/admin/izin/' + selectedIzin.id" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="space-y-4">
+
+                        <!-- Info Karyawan (read-only di edit) -->
+                        <div class="p-3 bg-gray-50 rounded-lg flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm"
+                                 x-text="selectedIzin.karyawan?.nama?.charAt(0)"></div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800" x-text="selectedIzin.karyawan?.nama"></p>
+                                <p class="text-xs text-gray-500" x-text="selectedIzin.karyawan?.jabatan"></p>
+                            </div>
+                        </div>
+
+                        <!-- Jenis Izin -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Izin</label>
+                            <select name="jenis_izin" x-model="selectedIzin.jenis_izin"
+                                class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-sm" required>
+                                <option value="">Pilih Jenis Izin</option>
+                                <option value="Izin sakit tanpa surat dokter">Sakit Tanpa Surat Dokter</option>
+                                <option value="Izin sakit dengan surat dokter">Sakit Dengan Surat Dokter</option>
+                                <option value="Izin keperluan keluarga">Keperluan Keluarga</option>
+                                <option value="Izin mengurus dokumen">Mengurus Dokumen</option>
+                                <option value="Izin pulang cepat">Pulang Cepat</option>
+                            </select>
+                        </div>
+
+                        <!-- Tanggal Izin -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Izin</label>
+                            <input type="date" name="tanggal_izin" x-model="selectedIzin.tanggal_izin"
+                                class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-sm" required>
+                        </div>
+
+                        <!-- Keterangan -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
+                            <textarea name="keterangan" rows="3" x-model="selectedIzin.keterangan"
+                                placeholder="Tulis keterangan izin..."
+                                class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-sm resize-none"></textarea>
+                        </div>
+
+                        <!-- Upload Dokumen -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ganti Dokumen <span class="text-gray-400 font-normal">(Opsional)</span></label>
+                            <!-- Preview dokumen lama -->
+                            <template x-if="selectedIzin.dokumen">
+                                <p class="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>Dokumen saat ini: </span>
+                                    <a :href="'/dokumen_izin/' + selectedIzin.dokumen" target="_blank"
+                                       class="text-blue-600 underline truncate max-w-[180px]" x-text="selectedIzin.dokumen"></a>
+                                </p>
+                            </template>
+                            <input type="file" name="dokumen" accept=".jpg,.jpeg,.png,.webp,.pdf"
+                                class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-600 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100">
+                            <p class="text-xs text-gray-400 mt-1">Biarkan kosong jika tidak ingin mengganti dokumen.</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" @click="openEdit = false"
+                            class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition text-sm">Batal</button>
+                        <button type="submit"
+                            class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md transition text-sm">Update Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===================== MODAL VIEW DOKUMEN ===================== --}}
     <div 
         x-show="openView"
         x-cloak
@@ -289,94 +511,62 @@
                 <div class="mb-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
                         <div>
-                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">
-                                Jenis Izin:
-                            </p>
-                            <p class="text-gray-800 font-semibold text-sm"
-                               x-text="selectedIzin.jenis_izin">
-                            </p>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Jenis Izin:</p>
+                            <p class="text-gray-800 font-semibold text-sm" x-text="selectedIzin.jenis_izin"></p>
                         </div>
                         <div>
-                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">
-                                Tanggal Izin:
-                            </p>
-                            <p class="text-gray-800 font-semibold text-sm"
-                               x-text="formatTanggal(selectedIzin.tanggal_izin)">
-                            </p>
+                            <p class="text-gray-500 font-medium mb-1 text-xs sm:text-sm">Tanggal Izin:</p>
+                            <p class="text-gray-800 font-semibold text-sm" x-text="formatTanggal(selectedIzin.tanggal_izin)"></p>
                         </div>
                     </div>
 
                     <div class="mt-3 pt-3 border-t border-blue-200">
-                        <p class="text-gray-500 font-medium mb-2 text-xs sm:text-sm">
-                            Keterangan:
-                        </p>
-                        <p class="text-gray-700 text-xs sm:text-sm"
-                           x-text="selectedIzin.keterangan || 'Tidak ada keterangan.'">
-                        </p>
+                        <p class="text-gray-500 font-medium mb-2 text-xs sm:text-sm">Keterangan:</p>
+                        <p class="text-gray-700 text-xs sm:text-sm" x-text="selectedIzin.keterangan || 'Tidak ada keterangan.'"></p>
                     </div>
                 </div>
 
                 <!-- Dokumen Lampiran -->
                 <div>
-                    <p class="text-xs sm:text-sm font-semibold text-gray-700 mb-2">
-                        Dokumen Lampiran:
-                    </p>
+                    <p class="text-xs sm:text-sm font-semibold text-gray-700 mb-2">Dokumen Lampiran:</p>
 
                     <div class="bg-gray-100 rounded-lg sm:rounded-xl overflow-hidden min-h-[300px] flex items-center justify-center border-2 border-dashed border-gray-300">
 
                         <!-- PREVIEW PDF -->
                         <template x-if="selectedIzin?.dokumen && isPdf(selectedIzin.dokumen)">
-                            <iframe
-                                :src="'/dokumen_izin/' + selectedIzin.dokumen"
-                                class="w-full h-[70vh]"
-                                frameborder="0">
-                            </iframe>
+                            <iframe :src="'/dokumen_izin/' + selectedIzin.dokumen" class="w-full h-[70vh]" frameborder="0"></iframe>
                         </template>
 
                         <!-- PREVIEW IMAGE -->
                         <template x-if="selectedIzin?.dokumen && isImage(selectedIzin.dokumen)">
-                            <img
-                                :src="'/dokumen_izin/' + selectedIzin.dokumen"
-                                class="max-w-full max-h-[70vh] object-contain">
+                            <img :src="'/dokumen_izin/' + selectedIzin.dokumen" class="max-w-full max-h-[70vh] object-contain">
                         </template>
 
                         <!-- FILE TIDAK DIDUKUNG -->
                         <template x-if="selectedIzin?.dokumen && !isPdf(selectedIzin.dokumen) && !isImage(selectedIzin.dokumen)">
                             <div class="text-center p-6">
-                                <p class="text-gray-500 text-sm mb-2">
-                                    Format dokumen tidak didukung untuk pratinjau
-                                </p>
-                                
-                                    :href="'/dokumen_izin/' + selectedIzin.dokumen"
-                                    target="_blank"
-                                    class="text-blue-600 underline text-sm">
-                                    Download Dokumen
-                                </a>
+                                <p class="text-gray-500 text-sm mb-2">Format dokumen tidak didukung untuk pratinjau</p>
+                                <a :href="'/dokumen_izin/' + selectedIzin.dokumen" target="_blank"
+                                   class="text-blue-600 underline text-sm">Download Dokumen</a>
                             </div>
                         </template>
 
                         <!-- TIDAK ADA DOKUMEN -->
                         <template x-if="!selectedIzin?.dokumen">
                             <div class="text-center p-6 sm:p-8">
-                                <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-2"
-                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <p class="text-gray-500 text-xs sm:text-sm">
-                                    Karyawan tidak melampirkan dokumen bukti.
-                                </p>
+                                <p class="text-gray-500 text-xs sm:text-sm">Karyawan tidak melampirkan dokumen bukti.</p>
                             </div>
                         </template>
-
                     </div>
 
                     <!-- Tombol Buka Dokumen -->
                     <template x-if="selectedIzin?.dokumen">
-                        
-                            :href="'/dokumen_izin/' + selectedIzin.dokumen"
-                            target="_blank"
-                            class="block text-center text-blue-600 text-xs sm:text-sm underline mt-2">
+                        <a :href="'/dokumen_izin/' + selectedIzin.dokumen" target="_blank"
+                           class="block text-center text-blue-600 text-xs sm:text-sm underline mt-2">
                             Buka / Download Dokumen
                         </a>
                     </template>
@@ -384,8 +574,7 @@
 
                 <!-- Footer -->
                 <div class="mt-4 sm:mt-6">
-                    <button
-                        @click="openView = false"
+                    <button @click="openView = false"
                         class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 sm:py-3 rounded-lg transition text-sm sm:text-base">
                         Tutup Pratinjau
                     </button>
@@ -408,12 +597,16 @@
     <script>
         function izinApp() {
             return {
+                openAdd: false,
+                openEdit: false,
                 openView: false,
                 selectedIzin: {},
+                selectedKaryawanId: '',
                 searchQuery: '',
                 filterJenisIzin: '',
                 filterTanggal: '',
                 allIzin: @json($allIzin),
+                karyawans: @json($karyawans),
                 filteredIzin: [],
 
                 init() {
@@ -423,7 +616,6 @@
                 filterIzin() {
                     let result = this.allIzin;
 
-                    // Filter berdasarkan pencarian nama
                     if (this.searchQuery.trim() !== '') {
                         const query = this.searchQuery.toLowerCase();
                         result = result.filter(i =>
@@ -433,12 +625,10 @@
                         );
                     }
 
-                    // Filter berdasarkan jenis izin
                     if (this.filterJenisIzin !== '') {
                         result = result.filter(i => i.jenis_izin === this.filterJenisIzin);
                     }
 
-                    // Filter berdasarkan tanggal
                     if (this.filterTanggal !== '') {
                         const tanggalFilter = new Date(this.filterTanggal);
                         tanggalFilter.setHours(0, 0, 0, 0);
@@ -452,7 +642,7 @@
                     this.filteredIzin = result;
                 },
 
-                resetFilter() {
+                resetFilters() {
                     this.searchQuery = '';
                     this.filterJenisIzin = '';
                     this.filterTanggal = '';
@@ -461,12 +651,10 @@
                 
                 formatTanggal(tgl) {
                     if (!tgl) return '-';
-
                     const date = new Date(tgl);
                     const day = String(date.getDate()).padStart(2, '0');
                     const month = String(date.getMonth() + 1).padStart(2, '0');
                     const year = date.getFullYear();
-
                     return `${day}/${month}/${year}`;
                 },
 

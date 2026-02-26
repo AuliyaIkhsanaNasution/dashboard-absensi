@@ -114,7 +114,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/izin', [IzinController::class, 'store'])->name('izin.store');
     Route::put('/izin/{izin}', [IzinController::class, 'update'])->name('izin.update');
     Route::delete('/izin/{izin}', [IzinController::class, 'destroy'])->name('izin.destroy');
-
+    
     // ============================================
     // Kelola Cuti
     // ============================================
@@ -145,5 +145,9 @@ Route::patch('/lembur/{id}/status', [LemburController::class, 'updateStatus'])
     Route::put('/shift/{id}', [ShiftController::class, 'update'])->name('shift.update');
     Route::delete('/shift/{id}', [ShiftController::class, 'destroy'])->name('shift.destroy');    
     
+    // ============================================
+    // Rekap Kehadiran
+    // ============================================
     Route::get('/rekap', [RekapController::class, 'index'])->name('rekap');
+    Route::get('/rekap/export', [RekapController::class, 'export'])->name('rekap.export');
 });
