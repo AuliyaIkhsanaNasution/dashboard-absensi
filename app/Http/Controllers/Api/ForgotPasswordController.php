@@ -42,7 +42,7 @@ class ForgotPasswordController extends Controller
                 ->subject('Reset Password Akun Absensi');
         });
 
-        return response()->json(['message' => 'Email reset password telah dikirim!']);
+        return response()->json(['message' => 'Silahkan Cek Email Anda Untuk Reset Password!']);
     }
 
 
