@@ -15,7 +15,7 @@ class IzinApiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'jenis_izin' => 'required|in:Izin sakit tanpa surat dokter,Izin sakit dengan surat dokter,Izin keperluan keluarga,Izin mengurus dokumen,Izin pulang cepat',
+            'jenis_izin' => 'required|in:Izin, Sakit',
             'tanggal_izin' => 'required|date',
             'keterangan' => 'required|string',
             'dokumen' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120'

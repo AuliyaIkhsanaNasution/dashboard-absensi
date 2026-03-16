@@ -15,6 +15,7 @@ use App\Http\Controllers\ResetPasswordController;
 // Import Model untuk Dashboard
 use App\Models\Karyawan;
 use App\Models\Absensi;
+use App\Models\Perusahaan;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,10 +62,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         return view('admin.dashboard', [
             'user' => $user,
             'totalKaryawan'  => Karyawan::count(),
-            'hadirHariIni'   => Absensi::where('tanggal', $today)->whereIn('status', ['Hadir', 'Terlambat'])->count(),
+            'hadirHariIni' => Absensi::where('tanggal', $today) ->whereIn('status', ['Tepat Waktu', 'Terlambat']) ->count(),
             'terlambat'      => Absensi::where('tanggal', $today)->where('status', 'Terlambat')->count(),
             'izin'           => Absensi::where('tanggal', $today)->whereIn('status', ['Izin', 'Sakit'])->count(),
-            'absensiHariIni' => Absensi::with('karyawan')->where('tanggal', $today)->latest()->take(5)->get()
+            'absensiHariIni' => Absensi::with('karyawan')->where('tanggal', $today)->latest()->take(5)->get(),
+            'totalPerusahaan' => Perusahaan::count(), // ← TAMBAHKAN INI
         ]);
     })->name('dashboard');
     
@@ -130,12 +132,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 // Kelola Lembur
 // ============================================
 Route::get('/lembur', [LemburController::class, 'index'])->name('lembur');
-Route::post('/lembur', [LemburController::class, 'store'])->name('lembur.store');
-Route::put('/lembur/{lembur}', [LemburController::class, 'update'])->name('lembur.update');
-Route::delete('/lembur/{lembur}', [LemburController::class, 'destroy'])->name('lembur.destroy');
-    
-Route::patch('/lembur/{id}/status', [LemburController::class, 'updateStatus'])
-    ->name('lembur.status');
+Route::delete('/lembur/{id}', [LemburController::class, 'destroy'])->name('lembur.destroy');
+Route::patch('/lembur/{id}/status', [LemburController::class, 'updateStatus'])->name('lembur.status');
 
     // ============================================
     // Kelola Shift

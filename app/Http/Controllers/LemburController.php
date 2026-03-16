@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
 use App\Models\Lembur;
 use Illuminate\Http\Request;
 
@@ -31,5 +32,19 @@ public function updateStatus(Request $request, $id)
     ]);
 
     return back()->with('success', 'Status lembur berhasil diperbarui.');
+}
+
+public function destroy($id)
+{
+    $lembur = Lembur::findOrFail($id);
+
+    // jika ada dokumen lampiran bisa juga dihapus dari storage
+    if ($lembur->dokumen && Storage::exists('public/' . $lembur->dokumen)) {
+        Storage::delete('public/' . $lembur->dokumen);
+    }
+
+    $lembur->delete();
+
+    return back()->with('success', 'Data lembur berhasil dihapus.');
 }
 }

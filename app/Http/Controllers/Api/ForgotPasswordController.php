@@ -37,10 +37,16 @@ class ForgotPasswordController extends Controller
 
         $link = url("/reset-password?token=".$token);
 
-        Mail::raw("Klik link reset password: $link", function ($msg) use ($request) {
-            $msg->to($request->email)
-                ->subject('Reset Password Akun Absensi');
-        });
+Mail::send([], [], function ($msg) use ($request, $link) {
+    $msg->to($request->email)
+        ->subject('Reset Password Akun Absensi')
+        ->html("
+            <p>Klik link reset password:</p>
+            <p><a href='$link'>$link</a></p>
+            <p>Link hanya dapat digunakan sekali dan akan kadaluwarsa dalam waktu 24 jam.</p>
+            <p>Salam<br>PT Souci Indoprima</p>
+        ");
+});
 
         return response()->json(['message' => 'Silahkan Cek Email Anda Untuk Reset Password!']);
     }

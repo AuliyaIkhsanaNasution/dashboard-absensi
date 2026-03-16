@@ -65,11 +65,7 @@
                                 @change="filterCuti"
                                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                                 <option value="">Semua Jenis Cuti</option>
-                                <option value="Cuti Tahunan">Cuti Tahunan</option>
-                                <option value="Cuti Melahirkan">Cuti Melahirkan</option>
-                                <option value="Cuti Menikah">Cuti Menikah</option>
-                                <option value="Cuti Besar">Cuti Besar</option>
-                                <option value="Cuti Tanpa Gaji">Cuti Tanpa Gaji</option>
+                                <option value="Cuti Tahunan">Cuti Fasilitas</option>
                             </select>
                             
                             <div class="flex-1">

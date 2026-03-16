@@ -88,11 +88,7 @@ class CutiApiController extends Controller
     public function jenisCuti()
     {
         $jenisCuti = [
-            'Cuti Tahunan',
-            'Cuti Melahirkan',
-            'Cuti Menikah',
-            'Cuti Besar',
-            'Cuti Tanpa Gaji'
+            'Cuti Fasilitas'
         ];
 
         return response()->json([

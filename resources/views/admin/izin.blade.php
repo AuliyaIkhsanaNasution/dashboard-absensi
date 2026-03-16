@@ -75,11 +75,8 @@
                                 @change="filterIzin"
                                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                                 <option value="">Semua Jenis Izin</option>
-                                <option value="Izin sakit tanpa surat dokter">Sakit Tanpa Surat</option>
-                                <option value="Izin sakit dengan surat dokter">Sakit Dengan Surat</option>
-                                <option value="Izin keperluan keluarga">Keperluan Keluarga</option>
-                                <option value="Izin mengurus dokumen">Mengurus Dokumen</option>
-                                <option value="Izin pulang cepat">Pulang Cepat</option>
+                                <option value="Izin">Izin</option>
+                                <option value="Sakit">Sakit</option>
                             </select>
 
                             <!-- Filter Tanggal -->
@@ -335,11 +332,8 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Izin</label>
                             <select name="jenis_izin" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" required>
                                 <option value="">Pilih Jenis Izin</option>
-                                <option value="Izin sakit tanpa surat dokter">Sakit Tanpa Surat Dokter</option>
-                                <option value="Izin sakit dengan surat dokter">Sakit Dengan Surat Dokter</option>
-                                <option value="Izin keperluan keluarga">Keperluan Keluarga</option>
-                                <option value="Izin mengurus dokumen">Mengurus Dokumen</option>
-                                <option value="Izin pulang cepat">Pulang Cepat</option>
+                                <option value="Izin">Izin</option>
+                                <option value="Sakit">Sakit</option>
                             </select>
                         </div>
 
@@ -411,11 +405,8 @@
                             <select name="jenis_izin" x-model="selectedIzin.jenis_izin"
                                 class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-sm" required>
                                 <option value="">Pilih Jenis Izin</option>
-                                <option value="Izin sakit tanpa surat dokter">Sakit Tanpa Surat Dokter</option>
-                                <option value="Izin sakit dengan surat dokter">Sakit Dengan Surat Dokter</option>
-                                <option value="Izin keperluan keluarga">Keperluan Keluarga</option>
-                                <option value="Izin mengurus dokumen">Mengurus Dokumen</option>
-                                <option value="Izin pulang cepat">Pulang Cepat</option>
+                                <option value="Izin">Izin</option>
+                                <option value="Sakit">Sakit</option>
                             </select>
                         </div>
 

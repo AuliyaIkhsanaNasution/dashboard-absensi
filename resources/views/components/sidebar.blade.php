@@ -24,17 +24,19 @@
        class="fixed md:static inset-y-0 left-0 z-50 w-64 md:w-52 bg-white shadow-lg flex flex-col">
     
     <!-- Logo & Company Name -->
-    <div class="p-6 border-b">
-        <div class="flex items-center justify-between">
-            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-10 w-auto">
-            <!-- Tombol Close untuk Mobile -->
-            <button @click="sidebarOpen = false" class="md:hidden text-gray-500 hover:text-gray-700">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
+    <div class="p-6 border-b relative">
+    <div class="flex items-center justify-center">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-18 w-auto">
     </div>
+
+    <!-- Tombol Close untuk Mobile -->
+    <button @click="sidebarOpen = false"
+        class="md:hidden absolute right-6 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+    </button>
+</div>
 
     <!-- Navigation Menu -->
     <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -63,7 +65,7 @@
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
             </svg>
-            <span class="font-medium">Data Perusahaan</span>
+            <span class="font-medium">Data Unit Kerja</span>
         </a>
 
         <a href="{{ route('admin.absensi') }}" 
@@ -126,7 +128,7 @@
     <div class="p-4 border-t">
         <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button type="submit" class="w-full flex items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition">
+            <button type="submit" class="w-full flex items-center justify-center px-4 py-3 bg-red-700 hover:bg-red-600 text-white rounded-lg transition">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                 </svg>

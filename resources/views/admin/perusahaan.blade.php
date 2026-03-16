@@ -67,7 +67,7 @@
                 <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div class="flex-1">
-                            <h2 class="text-base sm:text-lg font-semibold text-gray-700">Daftar Cabang / Unit</h2>
+                            <h2 class="text-base sm:text-lg font-semibold text-gray-700">Daftar Unit Kerja</h2>
                         </div>
                         <div class="flex gap-3">
                             <button @click="openAdd = true; initMap('mapAdd', 'lat_add', 'lng_add')" 
@@ -228,9 +228,13 @@
                             <label class="text-xs font-semibold text-gray-500 uppercase">Alamat</label>
                             <p class="text-xs sm:text-sm text-gray-700" x-text="selectedPerusahaan.alamat"></p>
                         </div>
-                        <div class="p-3 bg-gray-50 rounded-lg">
+                        <div>
                             <label class="text-xs font-semibold text-gray-500 uppercase">Koordinat Lokasi</label>
                             <p class="text-xs sm:text-sm font-mono text-gray-600 break-all" x-text="selectedPerusahaan.latitude + ', ' + selectedPerusahaan.longitude"></p>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500 uppercase">Radius Absensi (meter)</label>
+                            <p class="text-xs sm:text-sm text-gray-700" x-text="selectedPerusahaan.radius_absen"></p>
                         </div>
                     </div>
                     <div>
@@ -310,16 +314,22 @@
                                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat</label>
                                 <textarea name="alamat" rows="2" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm" required></textarea>
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Latitude</label>
-                                    <input type="text" name="latitude" id="lat_add" class="w-full border bg-gray-50 p-2 rounded-lg outline-none text-sm" readonly required>
-                                </div>
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Longitude</label>
-                                    <input type="text" name="longitude" id="lng_add" class="w-full border bg-gray-50 p-2 rounded-lg outline-none text-sm" readonly required>
-                                </div>
-                            </div>
+                           <div class="grid grid-cols-2 gap-4">
+    <div>
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Latitude</label>
+        <input type="text" name="latitude" id="lat_add" 
+            oninput="updateMapFromInput('mapAdd', 'lat_add', 'lng_add')"
+            placeholder="-6.200000"
+            class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+    </div>
+    <div>
+        <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Longitude</label>
+        <input type="text" name="longitude" id="lng_add"
+            oninput="updateMapFromInput('mapAdd', 'lat_add', 'lng_add')"
+            placeholder="106.816666"
+            class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+    </div>
+</div>
                             <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                                 Radius Absensi (meter)
@@ -337,7 +347,7 @@
                                 Contoh: 50 = 50 meter
                             </p>
                         </div>
-                        <div>
+                        {{-- <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                                 Hari Libur
                             </label>
@@ -359,7 +369,7 @@
                             <p class="text-[11px] text-gray-500 mt-1">
                                 Pilih satu atau lebih hari libur perusahaan.
                             </p>
-                        </div>
+                        </div> --}}
                             <div>
                                 <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Logo</label>
                                 <input type="file" name="logo" class="w-full text-xs">
@@ -370,7 +380,7 @@
                             <div id="mapAdd" class="h-full min-h-[250px] sm:min-h-[300px] w-full rounded-lg border"></div>
                         </div>
                     </div>
-                    <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
+                    <div class="mt-10 flex flex-col sm:flex-row justify-end gap-3">
                         <button type="button" @click="openAdd = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm order-2 sm:order-1">Batal</button>
                         <button type="submit" class="px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 text-sm order-1 sm:order-2">Simpan</button>
                     </div>
@@ -408,15 +418,21 @@
                                 <textarea name="alamat" x-model="selectedPerusahaan.alamat" rows="2" class="w-full border p-2 rounded-lg text-sm" required></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Latitude</label>
-                                    <input type="text" name="latitude" id="lat_edit" x-model="selectedPerusahaan.latitude" class="w-full border bg-gray-50 p-2 rounded-lg outline-none text-sm" readonly required>
-                                </div>
-                                <div>
-                                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Longitude</label>
-                                    <input type="text" name="longitude" id="lng_edit" x-model="selectedPerusahaan.longitude" class="w-full border bg-gray-50 p-2 rounded-lg outline-none text-sm" readonly required>
-                                </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                                <input type="text" name="latitude" id="lat_edit" x-model="selectedPerusahaan.latitude"
+                                    oninput="updateMapFromInput('mapEdit', 'lat_edit', 'lng_edit')"
+                                    placeholder="-6.200000"
+                                    class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-yellow-500 text-sm" required>
                             </div>
+                            <div>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                                <input type="text" name="longitude" id="lng_edit" x-model="selectedPerusahaan.longitude"
+                                    oninput="updateMapFromInput('mapEdit', 'lat_edit', 'lng_edit')"
+                                    placeholder="106.816666"
+                                    class="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-yellow-500 text-sm" required>
+                            </div>
+                        </div>
                             <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                                 Radius Absensi (meter)
@@ -431,7 +447,7 @@
                                 required
                             >
                         </div>
-                        <div>
+                        {{-- <div>
                             <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                                 Hari Libur
                             </label>
@@ -459,7 +475,7 @@
                             <p class="text-[11px] text-gray-500 mt-1">
                                 Centang hari yang menjadi hari libur perusahaan.
                             </p>
-                        </div>
+                        </div> --}}
 
                         </div>
                         
@@ -468,7 +484,7 @@
                             <div id="mapEdit" class="h-full min-h-[250px] sm:min-h-[300px] w-full rounded-lg border"></div>
                         </div>
                     </div>
-                    <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
+                    <div class="mt-10 flex flex-col sm:flex-row justify-end gap-3">
                         <button type="button" @click="openEdit = false" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm order-2 sm:order-1">Batal</button>
                         <button type="submit" class="px-6 py-2 bg-yellow-500 text-white rounded-lg text-sm order-1 sm:order-2">Update</button>
                     </div>
@@ -516,6 +532,20 @@
                 maps[mapId].invalidateSize();
             }, 300);
         }
+
+        function updateMapFromInput(mapId, latId, lngId) {
+    const lat = parseFloat(document.getElementById(latId).value);
+    const lng = parseFloat(document.getElementById(lngId).value);
+
+    // Validasi: pastikan keduanya angka valid dan dalam range koordinat
+    if (isNaN(lat) || isNaN(lng)) return;
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return;
+
+    if (maps[mapId] && markers[mapId]) {
+        markers[mapId].setLatLng([lat, lng]);
+        maps[mapId].setView([lat, lng], maps[mapId].getZoom());
+    }
+}
 
         function initViewMap(lat, lng) {
             setTimeout(() => {
